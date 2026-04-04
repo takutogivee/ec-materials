@@ -39,7 +39,23 @@ const upload = multer({ storage: storage });
 const cpUpload = upload.fields([{ name: 'file', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]);
 
 // JSONファイルの読み書きヘルパー
-const readData = (filePath) => JSON.parse(fs.readFileSync(filePath, 'utf8'));
+const readData = (filePath) => {
+  if (!fs.existsSync(filePath)) {
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    const defaultData = filePath.includes('settings.json') ? {} : [];
+    fs.writeFileSync(filePath, JSON.stringify(defaultData, null, 2), 'utf8');
+    return defaultData;
+  }
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (error) {
+    console.error(`Error parsing ${filePath}:`, error);
+    return filePath.includes('settings.json') ? {} : [];
+  }
+};
 const writeData = (filePath, data) => fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
 
 // --- Assets API ---
