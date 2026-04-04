@@ -10,6 +10,12 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// 全てのリクエストをログに出力
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} [${req.method}] ${req.path}`);
+  next();
+});
+
 // JSONデータベースのパス
 const ASSETS_FILE = path.join(__dirname, 'data', 'assets.json');
 const LEADS_FILE = path.join(__dirname, 'data', 'leads.json');
@@ -301,6 +307,7 @@ app.post('/api/leads', async (req, res) => {
 
     res.status(201).json(newLead);
   } catch (error) {
+    console.error("リード保存エラー:", error);
     res.status(500).json({ error: 'Failed to save lead' });
   }
 });
