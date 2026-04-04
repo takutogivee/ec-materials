@@ -33,7 +33,7 @@ export default function AdminLayout() {
       <aside className="admin-sidebar">
         <div className="admin-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <img src="/logo.png" alt="ラクザイ" style={{ height: '32px', objectFit: 'contain' }} />
-          <span style={{ fontWeight: 700, fontSize: '1.125rem' }}>管理画面</span>
+          <span style={{ fontWeight: 700, fontSize: '1.125rem' }}>管理画面 <span style={{ fontSize: '0.6rem', color: 'var(--primary)' }}>v2.1</span></span>
         </div>
         <nav className="admin-nav">
           <NavLink to="/admin" end className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
