@@ -14,12 +14,12 @@ export default function Home() {
   const [bannerConfig, setBannerConfig] = useState(null);
 
   useEffect(() => {
-    fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/assets')
+    fetch('/api/assets')
       .then(res => res.json())
       .then(data => setImages(data))
       .catch(err => console.error(err));
       
-    fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/settings')
+    fetch('/api/settings')
       .then(res => res.json())
       .then(data => setBannerConfig(data))
       .catch(err => console.error(err));

@@ -14,7 +14,7 @@ export default function SettingsManager() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/settings')
+    fetch('/api/settings')
       .then(res => res.json())
       .then(data => {
         setSubject(data.mailSubject || '');
@@ -32,7 +32,7 @@ export default function SettingsManager() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const currentRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/settings');
+      const currentRes = await fetch('/api/settings');
       const currentData = await currentRes.json();
       const mergedData = { 
         ...currentData,
@@ -45,7 +45,7 @@ export default function SettingsManager() {
         smtpPass
       };
 
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/settings', {
+      const res = await fetch('/api/settings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

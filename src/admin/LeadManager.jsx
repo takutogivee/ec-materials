@@ -7,12 +7,12 @@ export default function LeadManager() {
   const [showArchived, setShowArchived] = useState(false);
 
   useEffect(() => {
-    fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/assets')
+    fetch('' + '/api/assets')
       .then(res => res.json())
       .then(data => setImages(data))
       .catch(err => console.error(err));
       
-    fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/leads')
+    fetch('' + '/api/leads')
       .then(res => res.json())
       .then(data => setLeads(data))
       .catch(err => console.error(err));
@@ -20,7 +20,7 @@ export default function LeadManager() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/leads/${id}`, {
+      const res = await fetch(`/api/leads/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -36,7 +36,7 @@ export default function LeadManager() {
 
   const handleToggleArchive = async (id, isArchived) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/leads/${id}`, {
+      const res = await fetch(`/api/leads/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isArchived: !isArchived })

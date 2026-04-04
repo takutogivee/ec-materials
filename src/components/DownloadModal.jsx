@@ -48,7 +48,7 @@ export default function DownloadModal({ image, onClose }) {
     setIsSubmitting(true);
     
     try {
-      await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/leads', {
+      await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -56,7 +56,7 @@ export default function DownloadModal({ image, onClose }) {
         })
       });
 
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/assets/${image.id}/download`, { method: 'POST' });
+      await fetch(`/api/assets/${image.id}/download`, { method: 'POST' });
 
       setIsSubmitting(false);
       setIsSuccess(true);

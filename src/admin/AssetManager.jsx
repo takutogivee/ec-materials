@@ -8,7 +8,7 @@ export default function AssetManager() {
 
   // データ取得
   const fetchAssets = () => {
-    fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/assets')
+    fetch('/api/assets')
       .then(res => res.json())
       .then(data => setImages(data))
       .catch(err => console.error(err));
@@ -61,7 +61,7 @@ export default function AssetManager() {
         formData.append('category', newCategory);
         formData.append('tags', newTags);
 
-        await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/assets', {
+        await fetch('/api/assets', {
           method: 'POST',
           body: formData
         });
@@ -96,7 +96,7 @@ export default function AssetManager() {
 
   const handleEditSave = async (id) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/assets/${id}`, {
+      const res = await fetch(`/api/assets/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -118,7 +118,7 @@ export default function AssetManager() {
   const handleDelete = async (id) => {
     if (!window.confirm("本当にこの素材を削除しますか？")) return;
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/assets/${id}`, {
+      const res = await fetch(`/api/assets/${id}`, {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -149,7 +149,7 @@ export default function AssetManager() {
     if (!window.confirm(`選択した ${selectedIds.length} 件の素材を本当に削除しますか？`)) return;
     
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/assets/bulk`, {
+      const res = await fetch('/api/assets/bulk', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selectedIds })

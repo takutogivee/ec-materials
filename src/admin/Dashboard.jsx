@@ -18,18 +18,18 @@ export default function Dashboard() {
   const [isSavingBanner, setIsSavingBanner] = useState(false);
 
   useEffect(() => {
-    fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/assets')
+    fetch('/api/assets')
       .then(res => res.json())
       .then(data => setImages(data))
       .catch(err => console.error(err));
       
-    fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/leads')
+    fetch('/api/leads')
       .then(res => res.json())
       .then(data => setLeads(data))
       .catch(err => console.error(err));
       
     // 設定全般取得
-    fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/settings')
+    fetch('/api/settings')
       .then(res => res.json())
       .then(data => {
         if(data) {
@@ -58,11 +58,11 @@ export default function Dashboard() {
   // 設定を統合保存するユーティリティ
   const saveAllSettings = async (updates) => {
     try {
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/settings');
+      const res = await fetch('/api/settings');
       const current = await res.json();
       const merged = { ...current, ...updates };
 
-      const saveRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/settings', {
+      const saveRes = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(merged)
@@ -101,7 +101,7 @@ export default function Dashboard() {
     formData.append('image', file);
 
     try {
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/upload', {
+      const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       });

@@ -21,7 +21,7 @@ export default function AdminLayout() {
   const [stats, setStats] = useState({ todayCount: 0, weekCount: 0 });
 
   useEffect(() => {
-    fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/stats')
+    fetch('/api/stats')
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(console.error);
