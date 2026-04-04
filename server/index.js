@@ -269,7 +269,7 @@ app.post('/api/leads', async (req, res) => {
         const finalBody = settings.mailBody.replace(/{company}/g, newLead.company ? newLead.company + ' ' : '');
 
         const mailOptions = {
-          from: '"ラクザイ" <noreply@rakuzai.com>',
+          from: process.env.SMTP_FROM || '"ラクザイ" <noreply@rakuzai.com>',
           to: newLead.email,
           subject: settings.mailSubject,
           text: finalBody
