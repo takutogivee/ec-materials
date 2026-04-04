@@ -11,7 +11,7 @@ export default function Gallery({ images, onImageClick, likedItems = [], onLikeT
         <div key={img.id} className="gallery-item" onClick={() => onImageClick(img)}>
           <img 
             src={img.url} 
-            alt={img.title} 
+            alt={`${img.title} ${img.category || ''} ${(img.tags || []).join(' ')}`} 
             loading="lazy" 
             onError={(e) => { e.target.onerror = null; e.target.src = '/logo.png'; }}
           />
@@ -29,11 +29,14 @@ export default function Gallery({ images, onImageClick, likedItems = [], onLikeT
             </div>
             <div className="gallery-bottom-info">
               <div className="item-title">{img.title}</div>
-              {img.resolution && (
-                <div className="badge-container">
-                  <span className="badge" style={{background: 'rgba(0,0,0,0.5)'}}>{img.resolution}</span>
-                </div>
-              )}
+              <div className="badge-container" style={{ flexWrap: 'wrap' }}>
+                {img.category && (
+                  <span className="badge" style={{background: 'rgba(191,0,0,0.8)'}}>{img.category}</span>
+                )}
+                {img.tags && img.tags.slice(0, 3).map((tag, idx) => (
+                  <span key={idx} className="badge" style={{background: 'rgba(0,0,0,0.6)'}}>{tag}</span>
+                ))}
+              </div>
             </div>
           </div>
           </div>

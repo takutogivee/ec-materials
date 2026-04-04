@@ -229,6 +229,16 @@ export default function Home() {
         </section>
       </main>
       
+      {/* 検索エンジン向けSEOテキストエリア (UIを邪魔しないように薄い文字で) */}
+      <section style={{ maxWidth: '800px', margin: '4rem auto 0 auto', padding: '0 2rem', color: 'var(--text-muted)', fontSize: '0.8rem', lineHeight: '1.8' }}>
+        <h2 style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>ECデザイン・画像のフリー素材「ラクザイ」について</h2>
+        <p>
+          ラクザイは、楽天市場、Yahoo!ショッピング、Amazonなどで売上を伸ばすためのEC特化型フリー素材（画像・バナー・アイコン）ダウンロードサイトです。
+          送料無料タグ、ポイントアップバナー、ランキング受賞の王冠アイコン、母の日やサマーセール特集の背景など、商品の転換率（CVR）やクリック率を向上させるデザインをご用意しています。
+          すべての素材が無料で商用利用可能。面倒なクレジット表記も不要なため、日々の店舗運営やSNS（Instagram、LINE）運用ですぐにご活用いただけます。
+        </p>
+      </section>
+
       <footer style={{ background: 'var(--bg-surface)', padding: '2rem 1rem', borderTop: '1px solid var(--border)', marginTop: '4rem', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '1rem' }}>
           <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textDecoration: 'none' }}>利用規約</a>
