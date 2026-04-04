@@ -12,7 +12,10 @@ app.use(express.json());
 
 // 全てのリクエストをログに出力
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} [${req.method}] ${req.path}`);
+  // 静的ファイル(uploads等)へのリクエストはあまりログを汚さないように条件分岐
+  if (!req.path.startsWith('/uploads/') && !req.path.includes('.')) {
+    console.log(`${new Date().toISOString()} [${req.method}] ${req.path}`);
+  }
   next();
 });
 
@@ -379,10 +382,13 @@ if (fs.existsSync(PUBLIC_PATH)) {
 }
 
 // React Router 用のフォールバック (API以外のすべてのリクエストをindex.htmlへ)
+// 404 handling for undefined /api routes to prevent receiving index.html
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API route not found' });
+});
+
+// SPA Fallback: API以外でファイルが存在しない場合は index.html を返す
 app.use((req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return next();
-  }
   if (fs.existsSync(path.join(DIST_PATH, 'index.html'))) {
     res.sendFile(path.join(DIST_PATH, 'index.html'));
   } else {
@@ -391,5 +397,5 @@ app.use((req, res, next) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`API/Web Server running on port ${PORT}`);
+  console.log(`API/Web Server v2.2 running on port ${PORT}`);
 });

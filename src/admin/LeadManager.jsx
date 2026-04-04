@@ -7,12 +7,12 @@ export default function LeadManager() {
   const [showArchived, setShowArchived] = useState(false);
 
   useEffect(() => {
-    fetch('' + '/api/assets')
+    fetch('/api/assets')
       .then(res => res.json())
       .then(data => setImages(data))
       .catch(err => console.error(err));
       
-    fetch('' + '/api/leads')
+    fetch('/api/leads')
       .then(res => res.json())
       .then(data => setLeads(data))
       .catch(err => console.error(err));
