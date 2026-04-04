@@ -366,8 +366,11 @@ if (fs.existsSync(PUBLIC_PATH)) {
   app.use(express.static(PUBLIC_PATH));
 }
 
-// React Router 用のフォールバック (API以外のすべてのGETリクエストをindex.htmlへ)
-app.get('*', (req, res) => {
+// React Router 用のフォールバック (API以外のすべてのリクエストをindex.htmlへ)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
   if (fs.existsSync(path.join(DIST_PATH, 'index.html'))) {
     res.sendFile(path.join(DIST_PATH, 'index.html'));
   } else {
