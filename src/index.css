@@ -515,6 +515,63 @@ body {
   border-color: var(--primary);
 }
 
+/* Category Horizontal Scroll */
+.category-scroll-container {
+  display: flex;
+  gap: 0.8rem;
+  overflow-x: auto;
+  padding: 0.5rem 0 1rem 0;
+  margin: 1rem auto;
+  max-width: 1000px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+.category-scroll-container::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
+.category-btn {
+  flex: 0 0 auto;
+  height: 42px;
+  padding: 0 1.5rem;
+  background: #111;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.category-btn:hover {
+  background: #333;
+  transform: translateY(-2px);
+}
+.category-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .category-scroll-container {
+    display: grid;
+    grid-template-rows: repeat(2, 1fr);
+    grid-auto-flow: column;
+    gap: 0.5rem;
+  }
+  .category-btn {
+    height: 38px;
+    padding: 0 1rem;
+    font-size: 0.8rem;
+    width: max-content;
+  }
+}
+
 /* Modal */
 .required-mark {
   background: var(--primary);

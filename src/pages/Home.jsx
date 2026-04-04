@@ -67,24 +67,6 @@ export default function Home() {
     { type: 'category', label: '資料 / プレゼン' }
   ];
 
-  // 無限ループ用に配列を長めに用意（3セット繋げる）
-  const carouselItems = [...allTags, ...allTags, ...allTags];
-  
-  const [slideIndex, setSlideIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSlideIndex((prev) => {
-        // 次のインデックスへ。全体の2/3を超えたらリセットして無限ループ風にする
-        if (prev >= allTags.length * 2) {
-          return allTags.length; // 真ん中のセットの先頭へジャンプ
-        }
-        return prev + 1;
-      });
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [allTags.length]);
-
   return (
     <>
       <Helmet>
@@ -117,56 +99,30 @@ export default function Home() {
             </div>
           </div>
           
-          {/* カテゴリ & サジェストの5秒スライダー */}
-          <div style={{ width: '100%', overflow: 'hidden', position: 'relative', marginTop: '1rem', marginBottom: '0.5rem' }}>
-            <div style={{
-              display: 'flex',
-              gap: '0.8rem',
-              // 1アイテムあたり140px + gapを想定してtransformで動かす (約150px移動)
-              transform: `translateX(-${slideIndex * 153}px)`,
-              transition: slideIndex === allTags.length ? 'none' : 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)',
-              willChange: 'transform'
-            }}>
-              {carouselItems.map((item, idx) => {
-                const isActive = (item.type === 'category' && (item.label === '全て' ? activeCategory === '' : activeCategory === item.label)) || 
-                                 (item.type === 'keyword' && searchQuery === item.label);
-                
-                return (
-                  <button 
-                    key={`${item.label}-${idx}`}
-                    onClick={() => {
-                      if (item.type === 'category') {
-                        setActiveCategory(item.label === '全て' ? '' : item.label);
-                        setSearchQuery('');
-                      } else {
-                        setSearchQuery(item.label);
-                        setActiveCategory('');
-                      }
-                    }}
-                    style={{ 
-                      flex: '0 0 auto',
-                      width: '140px',
-                      height: '42px',
-                      background: isActive ? 'var(--primary)' : '#fff', 
-                      color: isActive ? 'white' : '#475569',
-                      border: `1px solid ${isActive ? 'var(--primary)' : '#cbd5e1'}`, 
-                      borderRadius: '8px', 
-                      fontWeight: '600',
-                      fontSize: '0.8rem', 
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: 'background 0.2s, transform 0.2s',
-                    }}
-                    onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
-                  >
-                    {item.label}
-                  </button>
-                );
-              })}
-            </div>
+          {/* カテゴリ & サジェスト */}
+          <div className="category-scroll-container">
+            {allTags.map((item, idx) => {
+              const isActive = (item.type === 'category' && (item.label === '全て' ? activeCategory === '' : activeCategory === item.label)) || 
+                               (item.type === 'keyword' && searchQuery === item.label);
+              
+              return (
+                <button 
+                  key={`${item.label}-${idx}`}
+                  onClick={() => {
+                    if (item.type === 'category') {
+                      setActiveCategory(item.label === '全て' ? '' : item.label);
+                      setSearchQuery('');
+                    } else {
+                      setSearchQuery(item.label);
+                      setActiveCategory('');
+                    }
+                  }}
+                  className={`category-btn ${isActive ? 'active' : ''}`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
           </div>
 
         </section>
