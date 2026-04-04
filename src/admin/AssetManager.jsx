@@ -192,16 +192,43 @@ export default function AssetManager() {
             <input type="text" placeholder="例: 夏のセールの背景" value={newTitle} onChange={e => setNewTitle(e.target.value)} required />
 
             <label>カテゴリ</label>
-            <select value={newCategory} onChange={e => setNewCategory(e.target.value)}>
-              <option value="SNS投稿用">SNS投稿用</option>
-              <option value="広告 / バナー素材">広告 / バナー素材</option>
-              <option value="EC / 商品画像">EC / 商品画像</option>
-              <option value="LP / Webサイト">LP / Webサイト</option>
-              <option value="資料 / プレゼン">資料 / プレゼン</option>
-            </select>
+            <input 
+              list="category-options" 
+              className="input-field" 
+              value={newCategory} 
+              onChange={e => setNewCategory(e.target.value)} 
+              placeholder="選択するか新しいカテゴリを入力" 
+              style={{ marginBottom: '1.5rem' }} 
+              required
+            />
+            <datalist id="category-options">
+              <option value="全て" />
+              <option value="SNS投稿用" />
+              <option value="広告 / バナー素材" />
+              <option value="EC / 商品画像" />
+              <option value="LP / Webサイト" />
+              <option value="資料 / プレゼン" />
+            </datalist>
             
             <label>タグ (カンマ区切り)</label>
-            <input type="text" placeholder="例: セール, 夏, イエロー" value={newTags} onChange={e => setNewTags(e.target.value)} />
+            <input type="text" className="input-field" placeholder="例: セール, 夏, イエロー" value={newTags} onChange={e => setNewTags(e.target.value)} />
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
+              {['ランキング', '母の日', 'お買い物マラソン', '送料無料', 'ポイント倍'].map(tag => (
+                <span 
+                  key={tag} 
+                  onClick={() => {
+                    const currentTags = newTags.split(',').map(t => t.trim()).filter(Boolean);
+                    if (!currentTags.includes(tag)) {
+                      setNewTags([...currentTags, tag].join(', '));
+                    }
+                  }}
+                  className="badge" 
+                  style={{ background: '#e2e8f0', color: '#475569', cursor: 'pointer', padding: '0.3rem 0.6rem' }}
+                >
+                  + {tag}
+                </span>
+              ))}
+            </div>
             
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
               <div style={{ flex: 1, padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)' }}>
@@ -280,19 +307,31 @@ export default function AssetManager() {
                           style={{ width: '100%', padding: '4px', border: '1px solid #cbd5e1', borderRadius: '4px', fontSize: '0.8rem' }}
                           placeholder="タグ..."
                         />
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem', marginTop: '0.3rem' }}>
+                          {['ランキング', '母の日', 'お買い物マラソン', '送料無料', 'ポイント倍'].map(tag => (
+                            <span 
+                              key={tag} 
+                              onClick={() => {
+                                const currentTags = editTags.split(',').map(t => t.trim()).filter(Boolean);
+                                if (!currentTags.includes(tag)) {
+                                  setEditTags([...currentTags, tag].join(', '));
+                                }
+                              }}
+                              className="badge" 
+                              style={{ background: '#e2e8f0', color: '#475569', cursor: 'pointer', fontSize: '0.65rem' }}
+                            >
+                              + {tag}
+                            </span>
+                          ))}
+                        </div>
                       </td>
                       <td>
-                        <select 
+                        <input 
+                          list="category-options" 
                           value={editCategory} 
                           onChange={(e) => setEditCategory(e.target.value)}
-                          style={{ padding: '4px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-                        >
-                          <option value="SNS投稿用">SNS投稿用</option>
-                          <option value="広告 / バナー素材">広告 / バナー素材</option>
-                          <option value="EC / 商品画像">EC / 商品画像</option>
-                          <option value="LP / Webサイト">LP / Webサイト</option>
-                          <option value="資料 / プレゼン">資料 / プレゼン</option>
-                        </select>
+                          style={{ padding: '4px', border: '1px solid #cbd5e1', borderRadius: '4px', width: '100%' }}
+                        />
                       </td>
                       <td>{img.downloads}</td>
                       <td>
