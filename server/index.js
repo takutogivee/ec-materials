@@ -309,6 +309,24 @@ app.post('/api/leads', async (req, res) => {
         if (activeHost && activeUser && activePass) {
           await transporter.sendMail(mailOptions);
           console.log("メールを送信しました: ", newLead.email);
+
+          // 管理者(info@givee.co.jp)宛の通知メール
+          const adminMailOptions = {
+            from: activeFrom,
+            to: 'info@givee.co.jp',
+            subject: `【ラクザイ通知】新規リード獲得: ${newLead.company} ${newLead.personName}様`,
+            text: `新しい素材ダウンロードがありました。\n\n` +
+                  `【会社名】${newLead.company}\n` +
+                  `【担当者名】${newLead.personName}\n` +
+                  `【メールアドレス】${newLead.email}\n` +
+                  `【電話番号】${newLead.phone}\n` +
+                  `【月商規模】${newLead.revenue}\n` +
+                  `【主な課題】${newLead.challenge}\n` +
+                  `【ＵＲＬ】${newLead.storeUrl || '未入力'}\n\n` +
+                  `ラクザイの管理画面から詳細を確認してください。`
+          };
+          await transporter.sendMail(adminMailOptions);
+          console.log("管理者への通知メールを送信しました。");
         } else {
           console.log("==========================================");
           console.log("✉️ [メール送信シミュレーション] (SMTP未設定)");

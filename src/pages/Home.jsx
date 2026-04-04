@@ -52,20 +52,19 @@ export default function Home() {
     return matchCategory && matchSearch;
   });
 
-  // カルーセル用の配列
-  const allTags = [
-    { type: 'keyword', label: 'お買い物マラソン' },
-    { type: 'keyword', label: '送料無料' },
-    { type: 'keyword', label: 'ポイント倍' },
-    { type: 'keyword', label: 'ランキング' },
-    { type: 'keyword', label: '母の日' },
-    { type: 'category', label: '全て' },
-    { type: 'category', label: 'SNS投稿用' },
-    { type: 'category', label: '広告 / バナー素材' },
-    { type: 'category', label: 'EC / 商品画像' },
-    { type: 'category', label: 'LP / Webサイト' },
-    { type: 'category', label: '資料 / プレゼン' }
-  ];
+  // 動的にカテゴリとタグを抽出
+  const dynamicCategories = Array.from(new Set(images.map(img => img.category).filter(Boolean)));
+  const dynamicTags = Array.from(new Set(images.flatMap(img => img.tags || []).filter(Boolean)));
+
+  // 固定の表示順
+  const fixedCategories = ['全て', 'SNS投稿用', '広告 / バナー素材', 'EC / 商品画像', 'LP / Webサイト', '資料 / プレゼン'];
+  const fixedTags = ['お買い物マラソン', '送料無料', 'ポイント倍', 'ランキング', '母の日'];
+
+  // 重複排除しながらマージ
+  const mergedCategories = [...new Set([...fixedCategories, ...dynamicCategories])].map(label => ({ type: 'category', label }));
+  const mergedTags = [...new Set([...fixedTags, ...dynamicTags])].map(label => ({ type: 'keyword', label }));
+
+  const allTags = [...mergedCategories, ...mergedTags];
 
   return (
     <>
@@ -117,7 +116,7 @@ export default function Home() {
                       setActiveCategory('');
                     }
                   }}
-                  className={`category-btn ${isActive ? 'active' : ''}`}
+                  className={`category-btn ${isActive ? 'active' : ''} ${item.label === '全て' ? 'btn-all-always-red' : ''}`}
                 >
                   {item.label}
                 </button>

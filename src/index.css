@@ -556,6 +556,11 @@ body {
   border-color: var(--primary);
   color: white;
 }
+.category-btn.btn-all-always-red {
+  background: var(--primary) !important;
+  color: white !important;
+  border-color: var(--primary) !important;
+}
 
 @media (max-width: 768px) {
   .category-scroll-container {
