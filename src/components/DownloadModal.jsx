@@ -16,7 +16,12 @@ export default function DownloadModal({ image, onClose }) {
   const [errorMsg, setErrorMsg] = useState('');
 
   const validateEmail = (emailStr) => {
-    // 一時的にテストのため全て許可（バリデーションを無効化）
+    if (!/^\S+@\S+\.\S+$/.test(emailStr)) return "有効なメールアドレスを入力してください";
+    const freeMails = ['gmail.com', 'yahoo.co.jp', 'hotmail.com', 'outlook.com', 'icloud.com', 'ezweb.ne.jp', 'docomo.ne.jp', 'softbank.ne.jp'];
+    const domain = emailStr.split('@')[1];
+    if (domain && freeMails.includes(domain.toLowerCase())) {
+      return "フリーメールアドレスはご利用いただけません。企業ドメインでご登録ください。";
+    }
     return "";
   };
 
@@ -41,7 +46,6 @@ export default function DownloadModal({ image, onClose }) {
     }
 
     setIsSubmitting(true);
-    alert("送信処理を開始します...");
     
     try {
       await fetch('/api/leads', {
@@ -53,7 +57,6 @@ export default function DownloadModal({ image, onClose }) {
       });
 
       await fetch(`/api/assets/${image.id}/download`, { method: 'POST' });
-      alert("送信に成功しました！");
 
       setIsSubmitting(false);
       setIsSuccess(true);
@@ -68,7 +71,6 @@ export default function DownloadModal({ image, onClose }) {
       console.error(error);
       setIsSubmitting(false);
       setErrorMsg('サーバーとの通信に失敗しました。');
-      alert("エラーが発生しました: " + error.message);
     }
   };
 
