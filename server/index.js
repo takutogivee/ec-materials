@@ -254,31 +254,36 @@ app.post('/api/leads', async (req, res) => {
           ? readData(SETTINGS_FILE) 
           : { mailSubject: "【ラクザイ】ご登録・ダウンロードありがとうございます", mailBody: "この度はラクザイから素材をダウンロードいただきありがとうございます。" };
 
-        // 本番環境にデプロイする場合は、Render等の環境変数でSMTP情報をセットしてください。
-        // ここでは Ethereal のようなダミー送受信用か、単なるコンソール出力を基本とします。
+        // UI(SettingsManager) で設定した値があればそれを優先、なければ環境変数
+        const activeHost = settings.smtpHost || process.env.SMTP_HOST;
+        const activePort = settings.smtpPort || process.env.SMTP_PORT || 587;
+        const activeUser = settings.smtpUser || process.env.SMTP_USER;
+        const activePass = settings.smtpPass || process.env.SMTP_PASS;
+        const activeFrom = settings.smtpFrom || process.env.SMTP_FROM || '"ラクザイ公式" <noreply@rakuzai.com>';
+
         const transporter = nodemailer.createTransport({
-          host: process.env.SMTP_HOST || 'smtp.ethereal.email',
-          port: process.env.SMTP_PORT || 587,
-          secure: false, // true for 465, false for other ports
+          host: activeHost || 'smtp.ethereal.email',
+          port: activePort,
+          secure: activePort == 465, // true for 465, false for other ports
           auth: {
-            user: process.env.SMTP_USER || 'dummy_user',
-            pass: process.env.SMTP_PASS || 'dummy_pass'
+            user: activeUser || 'dummy_user',
+            pass: activePass || 'dummy_pass'
           }
         });
 
         const finalBody = settings.mailBody.replace(/{company}/g, newLead.company ? newLead.company + ' ' : '');
 
         const mailOptions = {
-          from: process.env.SMTP_FROM || '"ラクザイ" <noreply@rakuzai.com>',
+          from: activeFrom,
           to: newLead.email,
           subject: settings.mailSubject,
           text: finalBody
         };
 
-        // If you don't have real SMTP credentials right now, this will fail.
-        // So we wrap it and just log for testing.
-        if (process.env.SMTP_HOST) {
+        // UIから設定されているか、環境変数が設定されていれば送る
+        if (activeHost && activeUser && activePass) {
           await transporter.sendMail(mailOptions);
+          console.log("メールを送信しました: ", newLead.email);
         } else {
           console.log("==========================================");
           console.log("✉️ [メール送信シミュレーション] (SMTP未設定)");

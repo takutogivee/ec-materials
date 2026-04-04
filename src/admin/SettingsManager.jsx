@@ -4,6 +4,13 @@ import { Save } from 'lucide-react';
 export default function SettingsManager() {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
+  
+  const [smtpFrom, setSmtpFrom] = useState('');
+  const [smtpHost, setSmtpHost] = useState('');
+  const [smtpPort, setSmtpPort] = useState('587');
+  const [smtpUser, setSmtpUser] = useState('');
+  const [smtpPass, setSmtpPass] = useState('');
+
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -12,6 +19,11 @@ export default function SettingsManager() {
       .then(data => {
         setSubject(data.mailSubject || '');
         setBody(data.mailBody || '');
+        setSmtpFrom(data.smtpFrom || '');
+        setSmtpHost(data.smtpHost || '');
+        setSmtpPort(data.smtpPort || '587');
+        setSmtpUser(data.smtpUser || '');
+        setSmtpPass(data.smtpPass || '');
       })
       .catch(err => console.error(err));
   }, []);
@@ -25,7 +37,12 @@ export default function SettingsManager() {
       const mergedData = { 
         ...currentData,
         mailSubject: subject,
-        mailBody: body
+        mailBody: body,
+        smtpFrom,
+        smtpHost,
+        smtpPort,
+        smtpUser,
+        smtpPass
       };
 
       const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/settings', {
@@ -55,8 +72,65 @@ export default function SettingsManager() {
         </p>
       </div>
 
+      <div className="admin-card" style={{ marginBottom: '2rem' }}>
+        <h4 style={{ marginTop: 0, marginBottom: '1.5rem', color: 'var(--primary)' }}>配信サーバー設定 (SMTP)</h4>
+        <form className="admin-form" onSubmit={handleSave}>
+          <label style={{ fontWeight: 'bold' }}>送信元アドレス (From)</label>
+          <input 
+            type="text" 
+            value={smtpFrom} 
+            onChange={(e) => setSmtpFrom(e.target.value)} 
+            placeholder='例: ラクザイ公式 <info@example.com>' 
+            style={{ marginBottom: '1.5rem' }}
+          />
+
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontWeight: 'bold' }}>SMTP ホスト</label>
+              <input 
+                type="text" 
+                value={smtpHost} 
+                onChange={(e) => setSmtpHost(e.target.value)} 
+                placeholder="例: smtp.gmail.com" 
+              />
+            </div>
+            <div style={{ width: '150px' }}>
+              <label style={{ fontWeight: 'bold' }}>ポート番号</label>
+              <input 
+                type="number" 
+                value={smtpPort} 
+                onChange={(e) => setSmtpPort(e.target.value)} 
+                placeholder="例: 587" 
+              />
+            </div>
+          </div>
+
+          <label style={{ fontWeight: 'bold' }}>ユーザー名 (SMTP認証)</label>
+          <input 
+            type="text" 
+            value={smtpUser} 
+            onChange={(e) => setSmtpUser(e.target.value)} 
+            placeholder="例: info@example.com" 
+            style={{ marginBottom: '1.5rem' }}
+          />
+
+          <label style={{ fontWeight: 'bold' }}>パスワード (アプリパスワード)</label>
+          <input 
+            type="password" 
+            value={smtpPass} 
+            onChange={(e) => setSmtpPass(e.target.value)} 
+            placeholder="パスワードを入力" 
+            style={{ marginBottom: '1.5rem' }}
+          />
+
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+            ※ ここに値が設定されている場合、サーバーの環境変数よりも優先して適用されます。未入力の場合は環境変数が使われます。
+          </p>
+        </form>
+      </div>
+
       <div className="admin-card">
-        <h4 style={{ marginTop: 0, marginBottom: '1.5rem', color: 'var(--primary)' }}>自動配信メール設定 (ダウンロード完了時)</h4>
+        <h4 style={{ marginTop: 0, marginBottom: '1.5rem', color: 'var(--primary)' }}>自動配信メールの文面設定 (ダウンロード完了時)</h4>
         <form className="admin-form" onSubmit={handleSave}>
           <label style={{ fontWeight: 'bold' }}>メールの件名</label>
           <input 
