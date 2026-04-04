@@ -13,7 +13,7 @@ export default function Header({ likedCount }) {
           <a href="https://givee.co.jp/lp/rakuten-consulting" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
             <img src="/contact-btn.png" alt="売上を伸ばす無料相談" className="contact-img" style={{ objectFit: 'contain' }} />
           </a>
-          <a href="https://www.pitaliy.com/signup?step=1" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+          <a href="https://www.pitaliy.com/signup?step=1" target="_blank" rel="noopener noreferrer" className="contact-btn-sp-hide" style={{ display: 'flex', alignItems: 'center', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
             <img src="/contact-btn2.png" alt="お問い合わせ" className="contact-img" style={{ objectFit: 'contain' }} />
           </a>
         </div>

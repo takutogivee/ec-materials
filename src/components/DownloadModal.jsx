@@ -128,7 +128,7 @@ export default function DownloadModal({ image, onClose }) {
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+                <p style={{ fontSize: '1rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
                   商用利用可能な高精細画像をダウンロードするには、以下の情報を入力してください。
                 </p>
 
@@ -145,7 +145,7 @@ export default function DownloadModal({ image, onClose }) {
                 <div className="form-group">
                   <label htmlFor="email">メールアドレス <span className="required-mark">必須</span></label>
                   <input type="email" id="email" className="input-field" placeholder="info@yourcompany.co.jp" value={email} onChange={(e) => {setEmail(e.target.value); setErrorMsg('');}} required />
-                  <span style={{fontSize:'0.7rem', color:'var(--text-muted)'}}>※gmail等のフリーメールはご利用いただけません。</span>
+                  <span style={{fontSize:'0.85rem', color:'var(--text-muted)'}}>※gmail等のフリーメールはご利用いただけません。</span>
                 </div>
 
                 <div className="form-group">
@@ -154,7 +154,7 @@ export default function DownloadModal({ image, onClose }) {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="storeUrl">楽天店舗URL <span style={{fontSize: '0.65rem', marginLeft:'0.3rem', color:'var(--text-muted)'}}>任意</span></label>
+                  <label htmlFor="storeUrl">楽天店舗URL <span style={{fontSize: '0.8rem', marginLeft:'0.3rem', color:'var(--text-muted)'}}>任意</span></label>
                   <input type="url" id="storeUrl" className="input-field" placeholder="https://www.rakuten.co.jp/..." value={storeUrl} onChange={(e) => setStoreUrl(e.target.value)} />
                 </div>
 

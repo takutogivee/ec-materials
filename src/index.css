@@ -149,6 +149,9 @@ body {
   .contact-img {
     height: 32px !important;
   }
+  .contact-btn-sp-hide {
+    display: none !important;
+  }
 }
 
 .auth-btn {
@@ -204,10 +207,16 @@ body {
 }
 
 .hero h1 {
-  font-size: 2.75rem;
+  font-size: 2.375rem; /* 44px -> 38px (-6px) */
   font-weight: 900;
   color: var(--text-main);
   margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 1.5rem; /* スマホではさらに小さく最適化 */
+  }
 }
 
 .hero h1 span {
@@ -430,7 +439,7 @@ body {
 .form-group label {
   display: flex;
   align-items: center;
-  font-size: 0.85rem;
+  font-size: 16px; /* 文字サイズを上げて見やすく（スマホのズーム防止） */
   font-weight: 700;
   margin-bottom: 0.25rem;
 }
@@ -521,6 +530,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-family: inherit;
+  font-size: 16px; /* iOS自動ズーム防止用の16px制限を確実にかける */
 }
 
 .input-field:focus {
