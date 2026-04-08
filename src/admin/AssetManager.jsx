@@ -24,6 +24,7 @@ export default function AssetManager() {
   const [newCategory, setNewCategory] = useState('SNS投稿用');
   const [newTags, setNewTags] = useState('');
   const [newFiles, setNewFiles] = useState([]);
+  const [newThumbnail, setNewThumbnail] = useState(null);
   
   // 一括アップロード用プログレス
   const [isUploading, setIsUploading] = useState(false);
@@ -61,6 +62,10 @@ export default function AssetManager() {
         formData.append('category', newCategory);
         formData.append('tags', newTags);
 
+        if (newThumbnail && newFiles.length === 1) {
+          formData.append('thumbnail', newThumbnail);
+        }
+
         await fetch('/api/assets', {
           method: 'POST',
           body: formData
@@ -73,6 +78,7 @@ export default function AssetManager() {
       setNewTitle('');
       setNewTags('');
       setNewFiles([]);
+      setNewThumbnail(null);
       fetchAssets(); // 再取得してリスト更新
       alert(`${newFiles.length}件の素材をアップロードしました！`);
     } catch (err) {
@@ -230,16 +236,28 @@ export default function AssetManager() {
               ))}
             </div>
             
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              <div style={{ flex: 1, padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+              <div style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--primary)', fontWeight: 'bold' }}>
-                  📂 元データ (.psd, .ai, .png 等) ※一括選択可能
+                  📂 元データ (.psd, .ai, .png, .pdf 等) ※一括選択可能
                 </label>
                 <input type="file" multiple onChange={e => setNewFiles(Array.from(e.target.files))} required />
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                  ※複数ファイルを選択した場合、タイトルを空欄にするとファイル名がそのままタイトルとして使われます。
+                  ※複数ファイルを選択した場合、タイトルを空欄にするとファイル名がタイトルになります。
                 </p>
               </div>
+
+              {newFiles.length === 1 && (
+                <div style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', background: '#f8fafc' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                    🖼 プレビュー/サムネイル画像 (任意)
+                  </label>
+                  <input type="file" accept="image/*" onChange={e => setNewThumbnail(e.target.files[0])} />
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem', margin: 0 }}>
+                    ※PDFファイルなどをアップロードする場合、表紙となる画像を指定できます。
+                  </p>
+                </div>
+              )}
             </div>
 
             <button type="submit" className="admin-btn" style={{ marginTop: '1.5rem', width: '100%' }}>保存して公開</button>
