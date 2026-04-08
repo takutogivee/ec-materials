@@ -151,7 +151,7 @@ export default function BlogDetail() {
 
               {/* === Author === */}
               {(blog.authorName || blog.authorProfile) && (
-                <div style={{ padding: '2rem', background: '#f8fafc', borderRadius: '8px', marginBottom: '3rem', display: 'flex', gap: '1.5rem', border: '1px solid var(--border)' }}>
+                <div style={{ padding: '1.5rem', background: '#f8fafc', borderRadius: '8px', marginBottom: '3rem', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', border: '1px solid var(--border)' }}>
                   <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                     {blog.authorImageUrl ? (
                       <img src={blog.authorImageUrl} alt={blog.authorName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -159,7 +159,7 @@ export default function BlogDetail() {
                       <span style={{ fontSize: '1.5rem', color: '#64748b' }}>{blog.authorName ? blog.authorName.charAt(0) : 'G'}</span>
                     )}
                   </div>
-                  <div>
+                  <div style={{ flex: '1 1 200px', wordBreak: 'break-word' }}>
                     <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>この記事を執筆した人</div>
                     <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.5rem' }}>{blog.authorName || 'Givee運営チーム'}</div>
                     <p style={{ fontSize: '0.95rem', color: '#475569', lineHeight: '1.6', margin: 0, whiteSpace: 'pre-wrap' }}>{linkify(blog.authorProfile)}</p>
