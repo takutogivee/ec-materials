@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { X, Download, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 export default function DownloadModal({ image, onClose }) {
+  const { user } = useAuth();
   const [company, setCompany] = useState('');
   const [personName, setPersonName] = useState('');
   const [email, setEmail] = useState('');
@@ -74,6 +76,42 @@ export default function DownloadModal({ image, onClose }) {
     }
   };
 
+  const handleDirectDownload = async () => {
+    setIsSubmitting(true);
+    try {
+      await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: user.email, 
+          company: user.company || '', 
+          personName: user.personName || '', 
+          phone: user.phone || '', 
+          revenue: user.revenue || '', 
+          challenge: '会員ログインDL', 
+          storeUrl: user.storeUrl || '', 
+          downloadedId: image.id 
+        })
+      });
+
+      await fetch(`/api/assets/${image.id}/download`, { method: 'POST' });
+
+      setIsSubmitting(false);
+      setIsSuccess(true);
+      
+      const link = document.createElement('a');
+      link.href = image.fileUrl || image.url; 
+      link.download = `rakuzai-material-${image.id}`; 
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error(error);
+      setIsSubmitting(false);
+      alert('サーバーとの通信に失敗しました。');
+    }
+  };
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -125,6 +163,25 @@ export default function DownloadModal({ image, onClose }) {
                     お打ち合わせはこちらから
                   </a>
                 </div>
+              </div>
+            ) : user ? (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center' }}>
+                <p style={{ fontSize: '1rem', color: 'var(--text-main)', marginBottom: '1.25rem', textAlign: 'center', lineHeight: '1.6' }}>
+                  <strong>{user.company || user.email}</strong> 様<br/>
+                  いつもご利用ありがとうございます。
+                </p>
+                <div style={{ background: 'var(--bg-surface)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--primary)', marginBottom: '2rem', textAlign: 'center' }}>
+                  <p style={{ margin: 0, color: 'var(--text-muted)' }}>会員様は入力不要で<br/>ワンクリックダウンロードが可能です！</p>
+                </div>
+                
+                <button onClick={handleDirectDownload} className="btn-primary" disabled={isSubmitting} style={{ marginTop: 'auto' }}>
+                  {isSubmitting ? '処理中...' : (
+                    <>
+                      <Download size={20} />
+                      無料でダウンロード
+                    </>
+                  )}
+                </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit}>

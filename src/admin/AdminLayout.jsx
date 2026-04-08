@@ -1,39 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate, Navigate } from 'react-router-dom';
-import { LayoutDashboard, Image as ImageIcon, Users, LogOut, ExternalLink, Settings } from 'lucide-react';
+import { LayoutDashboard, Image as ImageIcon, Users, LogOut, BookOpen } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext.jsx';
 import '../admin.css';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
+  const { user, loading, logout } = useAuth();
   
-  // 認証チェック
-  const isAuthenticated = localStorage.getItem('rakuzai_auth') === 'true';
-  
-  if (!isAuthenticated) {
+  const [stats, setStats] = useState({ todayCount: 0, weekCount: 0 });
+
+  useEffect(() => {
+    // loading中や未認証の場合はAPIを叩かない
+    if (loading || (!user && !localStorage.getItem('rakuzai_auth'))) return;
+    
+    fetch('/api/stats')
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(console.error);
+  }, [loading, user]);
+
+  if (loading) return <div style={{ padding: '2rem' }}>Loading...</div>;
+
+  // 管理者権限チェック（もしくは、古い方式での認証はフォールバックとして残してお祈りするか... いいえ、今回は新方式に統一します）
+  // ※ もし新規登録時の最初のユーザーなら自動的に admin になっています。
+  const isAdmin = user && user.role === 'admin';
+  const isOldAuth = localStorage.getItem('rakuzai_auth') === 'true'; // 移行用
+
+  if (!isAdmin && !isOldAuth) {
     return <Navigate to="/admin/login" replace />;
   }
 
   const handleLogout = () => {
     localStorage.removeItem('rakuzai_auth');
-    navigate('/admin/login');
+    logout();
   };
-
-  const [stats, setStats] = useState({ todayCount: 0, weekCount: 0 });
-
-  useEffect(() => {
-    fetch('/api/stats')
-      .then(res => res.json())
-      .then(data => setStats(data))
-      .catch(console.error);
-  }, []);
 
   return (
     <div className="admin-container">
       {/* サイドバー */}
       <aside className="admin-sidebar">
-        <div className="admin-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <img src="/logo.png" alt="ラクザイ" style={{ height: '32px', objectFit: 'contain' }} />
-          <span style={{ fontWeight: 700, fontSize: '1.125rem' }}>管理画面</span>
+        <div className="admin-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', height: '100px' }}>
+          <img src="/logo.png" alt="ラクザイ" style={{ height: '70px', objectFit: 'contain', padding: '15px 0', filter: 'brightness(0) invert(1)' }} />
         </div>
         <nav className="admin-nav">
           <NavLink to="/admin" end className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
@@ -47,6 +55,10 @@ export default function AdminLayout() {
           <NavLink to="/admin/leads" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
             <Users size={18} />
             獲得したリード
+          </NavLink>
+          <NavLink to="/admin/blogs" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
+            <BookOpen size={18} />
+            ブログ記事の管理
           </NavLink>
         </nav>
         <div className="admin-sidebar-footer">

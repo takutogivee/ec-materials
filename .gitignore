@@ -12,3 +12,8 @@ yarn-error.log*
 server/data/assets.json
 server/data/leads.json
 server/data/settings.json
+server/data/blogs.json
+server/data/users.json
+server/data/uploads/
+public/uploads/
+dev.log

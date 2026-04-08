@@ -1,23 +1,38 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMsg('');
 
-    // 仮のハードコード認証
-    if (username === 'admin' && password === 'rakuzai_admin') {
-      localStorage.setItem('rakuzai_auth', 'true');
-      navigate('/admin');
-    } else {
-      setErrorMsg('IDまたはパスワードが正しくありません');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        if (data.user.role === 'admin') {
+          login(data.token, data.user);
+          navigate('/admin');
+        } else {
+          setErrorMsg('管理者権限がありません');
+        }
+      } else {
+        setErrorMsg(data.error || 'ログイン失敗');
+      }
+    } catch(err) {
+      setErrorMsg('エラーが発生しました');
     }
   };
 
@@ -40,13 +55,13 @@ export default function AdminLogin() {
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div style={{ textAlign: 'left' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>管理者ID</label>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>管理者メールアドレス</label>
             <input 
               type="text" 
               className="input-field" 
-              value={username} 
-              onChange={e => setUsername(e.target.value)} 
-              placeholder="IDを入力" 
+              value={email} 
+              onChange={e => setEmail(e.target.value)} 
+              placeholder="メールアドレスを入力" 
               required 
             />
           </div>

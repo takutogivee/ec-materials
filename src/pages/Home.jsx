@@ -4,25 +4,27 @@ import { Search } from 'lucide-react';
 import Gallery from '../components/Gallery.jsx';
 import DownloadModal from '../components/DownloadModal.jsx';
 import Header from '../components/Header.jsx';
+import Footer from '../components/Footer.jsx';
 
 export default function Home() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [images, setImages] = useState([]);
+  const [blogs, setBlogs] = useState([]);
   const [activeCategory, setActiveCategory] = useState('');
   const [likedItems, setLikedItems] = useState([]);
   const [bannerConfig, setBannerConfig] = useState(null);
 
   useEffect(() => {
-    fetch('/api/assets')
-      .then(res => res.json())
-      .then(data => setImages(data))
-      .catch(err => console.error(err));
-      
-    fetch('/api/settings')
-      .then(res => res.json())
-      .then(data => setBannerConfig(data))
-      .catch(err => console.error(err));
+    Promise.all([
+      fetch('/api/assets').then(res => res.json()),
+      fetch('/api/blogs').then(res => res.json()),
+      fetch('/api/settings').then(res => res.json())
+    ]).then(([assetsData, blogsData, settingsData]) => {
+      setImages(assetsData);
+      setBlogs(blogsData.filter(b => b.isPublic)); // 公開済みのブログのみ
+      if (settingsData) setBannerConfig(settingsData);
+    }).catch(err => console.error(err));
   }, []);
 
   const handleLikeToggle = (id) => {
@@ -31,21 +33,32 @@ export default function Home() {
     );
   };
 
-  const filteredImages = images.filter(img => {
+  // 画像とブログを統合して扱うための配列を作成
+  const mixedItems = [
+    ...images.map(img => ({ ...img, itemType: 'asset', sortDate: new Date(img.createdAt || 0).getTime() })),
+    ...blogs.map(blog => ({
+      ...blog,
+      itemType: 'blog',
+      url: blog.thumbnailUrl || '', // 画像が存在しない場合のフォールバックはGallery内で処理
+      tags: blog.tags || [],
+      sortDate: new Date(blog.createdAt).getTime()
+    }))
+  ].sort((a, b) => b.sortDate - a.sortDate);
+
+  const filteredItems = mixedItems.filter(item => {
     let matchCategory = true;
     if (activeCategory) {
-      matchCategory = img.tags.includes(activeCategory) || img.category === activeCategory;
+      matchCategory = (item.tags && item.tags.includes(activeCategory)) || item.category === activeCategory;
     }
     
     let matchSearch = true;
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      // 空白で分割して複数キーワードのAND検索等も可能だが今回は単純な含むチェック
       matchSearch = (
-        img.title.toLowerCase().includes(query) ||
-        img.tags.some(tag => tag.toLowerCase().includes(query)) ||
-        (query === 'ai' && img.type === 'ai') ||
-        (query === 'creator' && img.type === 'creator')
+        (item.title && item.title.toLowerCase().includes(query)) ||
+        (item.tags && item.tags.some(tag => tag.toLowerCase().includes(query))) ||
+        (query === 'ai' && item.type === 'ai') ||
+        (query === 'creator' && item.type === 'creator')
       );
     }
     
@@ -53,8 +66,8 @@ export default function Home() {
   });
 
   // 動的にカテゴリとタグを抽出
-  const dynamicCategories = Array.from(new Set(images.map(img => img.category).filter(Boolean)));
-  const dynamicTags = Array.from(new Set(images.flatMap(img => img.tags || []).filter(Boolean)));
+  const dynamicCategories = Array.from(new Set(mixedItems.map(item => item.category).filter(Boolean)));
+  const dynamicTags = Array.from(new Set(mixedItems.flatMap(item => item.tags || []).filter(Boolean)));
 
   // 固定の表示順
   const fixedCategories = ['全て', 'SNS投稿用', '広告 / バナー素材', 'EC / 商品画像', 'LP / Webサイト', '資料 / プレゼン'];
@@ -169,10 +182,16 @@ export default function Home() {
         )}
 
         <section className="gallery-container">
-          {filteredImages.length > 0 ? (
+          {filteredItems.length > 0 ? (
             <Gallery 
-              images={filteredImages} 
-              onImageClick={(img) => setSelectedImage(img)} 
+              items={filteredItems} 
+              onImageClick={(item) => {
+                if (item.itemType === 'blog') {
+                  window.location.href = `/blogs/${item.id}`;
+                } else {
+                  setSelectedImage(item);
+                }
+              }} 
               likedItems={likedItems}
               onLikeToggle={handleLikeToggle}
             />
@@ -194,15 +213,7 @@ export default function Home() {
         </p>
       </section>
 
-      <footer style={{ background: 'var(--bg-surface)', padding: '2rem 1rem', borderTop: '1px solid var(--border)', marginTop: '4rem', textAlign: 'center' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '1rem' }}>
-          <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textDecoration: 'none' }}>利用規約</a>
-          <a href="https://givee.co.jp/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textDecoration: 'none' }}>運営会社 (Givee株式会社)</a>
-        </div>
-        <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-          &copy; {new Date().getFullYear()} Givee Inc. All rights reserved.
-        </div>
-      </footer>
+      <Footer />
 
       {selectedImage && (
         <DownloadModal 

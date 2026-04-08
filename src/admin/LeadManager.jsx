@@ -140,6 +140,7 @@ export default function LeadManager() {
               
               const statusColors = {
                 '未対応': '#ef4444',
+                'メール送付済み': '#8b5cf6',
                 'アポ獲得': '#f59e0b',
                 '商談中': '#3b82f6',
                 '受注': '#10b981',
@@ -160,6 +161,7 @@ export default function LeadManager() {
                       }}
                     >
                       <option value="未対応">未対応</option>
+                      <option value="メール送付済み">メール送付済み</option>
                       <option value="アポ獲得">アポ獲得</option>
                       <option value="商談中">商談中</option>
                       <option value="受注">受注</option>
