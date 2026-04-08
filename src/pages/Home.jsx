@@ -94,11 +94,16 @@ export default function Home() {
 
   const allTags = [...mergedCategories, ...mergedTags];
 
-  // --- ダウンロードランキング抽出 ---
+  // --- ランキング抽出 ---
   const topDLItems = mixedItems
     .filter(item => item.itemType === 'asset' && item.downloads > 0)
     .sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
-    .slice(0, 5);
+    .slice(0, 3); // Top 3
+
+  const topBlogItems = mixedItems
+    .filter(item => item.itemType === 'blog' && item.views > 0)
+    .sort((a, b) => (b.views || 0) - (a.views || 0))
+    .slice(0, 3); // Top 3
 
   return (
     <>
@@ -170,7 +175,7 @@ export default function Home() {
                 {/* 1. DLランキング アイテム表示 (カード形式) */}
                 {topDLItems.map((item, idx) => (
                   <div 
-                    key={`rank-${repeatIndex}-${item.id}`}
+                    key={`rank-dl-${repeatIndex}-${item.id}`}
                     style={{ 
                       display: 'flex', alignItems: 'center', gap: '0.8rem', background: '#fff', 
                       padding: '0.5rem', paddingRight: '1rem', borderRadius: '8px', 
@@ -200,7 +205,40 @@ export default function Home() {
                   </div>
                 ))}
 
-                {/* 2. 特集バナー等の表示 */}
+                {/* 2. 記事閲覧数ランキング アイテム表示 */}
+                {topBlogItems.map((item, idx) => (
+                  <div 
+                    key={`rank-blog-${repeatIndex}-${item.id}`}
+                    style={{ 
+                      display: 'flex', alignItems: 'center', gap: '0.8rem', background: '#fff', 
+                      padding: '0.5rem', paddingRight: '1rem', borderRadius: '8px', 
+                      border: `2px solid ${idx === 0 ? '#bbf7d0' : idx === 1 ? '#e2e8f0' : idx === 2 ? '#fed7aa' : 'var(--border)'}`, 
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.04)', cursor: 'pointer', flexShrink: 0,
+                      transition: 'transform 0.2s, box-shadow 0.2s'
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.04)'; }}
+                    onClick={() => { window.location.href = `/blogs/${item.id}`; }}
+                  >
+                    <img src={item.url} style={{ width: '60px', height: '60px', borderRadius: '6px', objectFit: 'cover', background: '#f1f5f9' }} alt={item.title} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', maxWidth: '150px' }}>
+                      <div style={{ 
+                        fontSize: '0.65rem', fontWeight: '900', display: 'inline-block', width: 'fit-content', padding: '0.1rem 0.4rem', borderRadius: '4px', marginBottom: '0.1rem',
+                        background: idx === 0 ? 'linear-gradient(135deg, #86efac, #22c55e)' : idx === 1 ? 'linear-gradient(135deg, #e2e8f0, #94a3b8)' : idx === 2 ? 'linear-gradient(135deg, #fed7aa, #b45309)' : '#f8fafc',
+                        color: idx > 2 ? '#64748b' : '#fff',
+                        border: idx > 2 ? '1px solid #e2e8f0' : 'none'
+                      }}>
+                        {idx === 0 ? '📖 記事ランキング 第1位' : `記事ランキング 第${idx + 1}位`}
+                      </div>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-main)', marginTop: '0.1rem' }}>{item.title}</span>
+                      <span style={{ fontSize: '0.75rem', color: '#fff', background: '#3b82f6', padding: '0.1rem 0.4rem', borderRadius: '12px', fontWeight: 'bold', display: 'inline-block', width: 'fit-content', marginTop: '0.1rem' }}>
+                        {item.views} Views
+                      </span>
+                    </div>
+                  </div>
+                ))}
+
+                {/* 3. 特集バナー等の表示 */}
                 {(bannerConfig && bannerConfig.topBannerActive && bannerConfig.topBanners) && bannerConfig.topBanners.map((banner) => (
                   (banner.imgUrl || banner.text) ? (
                     <a 

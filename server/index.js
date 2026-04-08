@@ -288,9 +288,14 @@ app.get('/api/blogs', (req, res) => {
 app.get('/api/blogs/:id', (req, res) => {
   try {
     const blogs = readData(BLOGS_FILE);
-    const blog = blogs.find(b => b.id === parseInt(req.params.id));
-    if (!blog) return res.status(404).json({ error: 'Blog not found' });
-    res.json(blog);
+    const blogIndex = blogs.findIndex(b => b.id === parseInt(req.params.id));
+    if (blogIndex === -1) return res.status(404).json({ error: 'Blog not found' });
+    
+    // 閲覧数をインクリメント
+    blogs[blogIndex].views = (blogs[blogIndex].views || 0) + 1;
+    writeData(BLOGS_FILE, blogs);
+    
+    res.json(blogs[blogIndex]);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch blog' });
   }
