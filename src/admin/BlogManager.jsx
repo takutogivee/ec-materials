@@ -238,6 +238,7 @@ export default function BlogManager() {
             <tr>
               <th>ID</th>
               <th>タイトル</th>
+              <th>閲覧数(Views)</th>
               <th>状態</th>
               <th>公開範囲</th>
               <th>操作</th>
@@ -248,6 +249,11 @@ export default function BlogManager() {
               <tr key={blog.id}>
                 <td>{blog.id}</td>
                 <td style={{ fontWeight: 'bold' }}>{blog.title}</td>
+                <td>
+                  <span style={{ fontWeight: 'bold', color: 'var(--primary)', background: '#fff0f0', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.85rem' }}>
+                    {blog.views || 0}
+                  </span>
+                </td>
                 <td>
                   <span className="badge" style={{ background: blog.isPublic ? '#10b981' : '#64748b', color: '#fff' }}>
                     {blog.isPublic ? '公開' : '非公開'}

@@ -177,9 +177,10 @@ export default function Home() {
                   <div 
                     key={`rank-dl-${repeatIndex}-${item.id}`}
                     style={{ 
-                      display: 'flex', alignItems: 'center', gap: '0.8rem', background: '#fff', 
+                      display: 'flex', alignItems: 'center', gap: '0.8rem', 
+                      background: idx === 0 ? '#fef08a' : idx === 1 ? '#f1f5f9' : idx === 2 ? '#ffedd5' : '#ffffff', 
                       padding: '0.5rem', paddingRight: '1rem', borderRadius: '8px', 
-                      border: `2px solid ${idx === 0 ? '#fde047' : idx === 1 ? '#cbd5e1' : idx === 2 ? '#fdba74' : 'var(--border)'}`, 
+                      border: `1px solid ${idx === 0 ? '#fde047' : idx === 1 ? '#cbd5e1' : idx === 2 ? '#fdba74' : 'var(--border)'}`, 
                       boxShadow: '0 2px 6px rgba(0,0,0,0.04)', cursor: 'pointer', flexShrink: 0,
                       transition: 'transform 0.2s, box-shadow 0.2s'
                     }}
@@ -215,9 +216,10 @@ export default function Home() {
                   <div 
                     key={`rank-blog-${repeatIndex}-${item.id}`}
                     style={{ 
-                      display: 'flex', alignItems: 'center', gap: '0.8rem', background: '#fff', 
+                      display: 'flex', alignItems: 'center', gap: '0.8rem', 
+                      background: idx === 0 ? '#bbf7d0' : idx === 1 ? '#f1f5f9' : idx === 2 ? '#ffedd5' : '#ffffff', 
                       padding: '0.5rem', paddingRight: '1rem', borderRadius: '8px', 
-                      border: `2px solid ${idx === 0 ? '#bbf7d0' : idx === 1 ? '#e2e8f0' : idx === 2 ? '#fed7aa' : 'var(--border)'}`, 
+                      border: `1px solid ${idx === 0 ? '#86efac' : idx === 1 ? '#cbd5e1' : idx === 2 ? '#fdba74' : 'var(--border)'}`, 
                       boxShadow: '0 2px 6px rgba(0,0,0,0.04)', cursor: 'pointer', flexShrink: 0,
                       transition: 'transform 0.2s, box-shadow 0.2s'
                     }}
