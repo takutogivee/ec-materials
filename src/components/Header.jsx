@@ -18,7 +18,10 @@ export default function Header({ likedCount }) {
         
         <div className="header-right desktop-only" style={{ display: 'flex', alignItems: 'center', height: '100px' }}>
           {user ? (
-            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', fontSize: '0.9rem' }}>
+            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', fontSize: '0.9rem', padding: '0 1rem' }}>
+              <Link to="/blogs" style={{ textDecoration: 'none', color: '#fff', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <BookOpen size={16} /> お役立ち記事
+              </Link>
               <Link to="/mypage" style={{ textDecoration: 'none', color: '#fff', fontWeight: 'bold' }}>
                 <User size={16} style={{ marginRight: '4px', verticalAlign: 'middle' }}/>{user.company || user.email}様
               </Link>
@@ -28,6 +31,9 @@ export default function Header({ likedCount }) {
             </div>
           ) : (
             <div style={{ display: 'flex', height: '100px', alignItems: 'center', padding: '0 1rem' }}>
+              <Link to="/blogs" style={{ display: 'flex', alignItems: 'center', height: '100%', gap: '4px', padding: '0 15px', textDecoration: 'none', color: '#fff', fontWeight: 'bold', fontSize: '0.9rem', transition: 'background 0.2s' }} onMouseOver={e=>e.currentTarget.style.background='#333'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>
+                <BookOpen size={16} /> お役立ち記事
+              </Link>
               <Link to="/login" style={{ display: 'flex', alignItems: 'center', height: '100%', padding: '0 15px', textDecoration: 'none', color: '#fff', fontWeight: 'bold', fontSize: '0.9rem', transition: 'background 0.2s' }} onMouseOver={e=>e.currentTarget.style.background='#333'} onMouseOut={e=>e.currentTarget.style.background='transparent'}>
                  ログイン
               </Link>
@@ -68,11 +74,13 @@ export default function Header({ likedCount }) {
         <div className="mobile-menu-dropdown" style={{ position: 'absolute', top: '100px', left: 0, width: '100%', zIndex: 99, borderTop: '1px solid #e2e8f0', background: 'white', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {user ? (
             <>
+              <Link to="/blogs" onClick={() => setIsMenuOpen(false)} style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'center', background: '#3b82f6', color: '#fff', textDecoration: 'none', borderRadius: '4px', fontWeight: 'bold' }}>お役立ち記事</Link>
               <Link to="/mypage" onClick={() => setIsMenuOpen(false)} style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'center', background: '#334155', color: '#fff', textDecoration: 'none', borderRadius: '4px', fontWeight: 'bold' }}>マイページ</Link>
               <button onClick={() => { logout(); setIsMenuOpen(false); }} style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'center', background: '#f8fafc', color: '#334155', border: '1px solid #cbd5e1', borderRadius: '4px', fontWeight: 'bold' }}>ログアウト</button>
             </>
           ) : (
             <>
+              <Link to="/blogs" onClick={() => setIsMenuOpen(false)} style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'center', background: '#3b82f6', color: '#fff', textDecoration: 'none', borderRadius: '4px', fontWeight: 'bold' }}>お役立ち記事</Link>
               <Link to="/register" onClick={() => setIsMenuOpen(false)} style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'center', background: '#334155', color: '#fff', textDecoration: 'none', borderRadius: '4px', fontWeight: 'bold' }}>新規登録</Link>
               <Link to="/login" onClick={() => setIsMenuOpen(false)} style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'center', background: '#f8fafc', color: '#334155', border: '1px solid #cbd5e1', textDecoration: 'none', borderRadius: '4px', fontWeight: 'bold' }}>ログイン</Link>
             </>

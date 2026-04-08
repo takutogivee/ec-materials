@@ -452,8 +452,8 @@ app.post('/api/assets', cpUpload, (req, res) => {
   }
 });
 
-// 更新処理 (メタデータのみ対応)
-app.put('/api/assets/:id', (req, res) => {
+// 更新処理
+app.put('/api/assets/:id', cpUpload, (req, res) => {
   try {
     const assets = readData(ASSETS_FILE);
     const { title, category, tags } = req.body;
@@ -461,11 +461,17 @@ app.put('/api/assets/:id', (req, res) => {
     
     if (index === -1) return res.status(404).json({ error: 'Asset not found' });
 
+    let thumbnailUrl = assets[index].url;
+    if (req.files && req.files['thumbnail'] && req.files['thumbnail'].length > 0) {
+      thumbnailUrl = `/uploads/${req.files['thumbnail'][0].filename}`;
+    }
+
     assets[index] = {
       ...assets[index],
+      url: thumbnailUrl,
       title: title !== undefined ? title : assets[index].title,
       category: category !== undefined ? category : assets[index].category,
-      tags: tags ? tags.split(',').map(tag => tag.trim()).filter(Boolean) : assets[index].tags
+      tags: tags !== undefined ? tags.split(',').map(tag => tag.trim()).filter(Boolean) : assets[index].tags
     };
 
     writeData(ASSETS_FILE, assets);

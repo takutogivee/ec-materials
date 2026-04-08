@@ -30,12 +30,12 @@ export default function AssetManager() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
 
-  // 編集ステート
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [editType, setEditType] = useState('ai');
   const [editCategory, setEditCategory] = useState('SNS投稿用');
   const [editTags, setEditTags] = useState('');
+  const [editThumbnail, setEditThumbnail] = useState(null);
 
   const handleAddSubmit = async (e) => {
     e.preventDefault();
@@ -89,11 +89,13 @@ export default function AssetManager() {
     }
   };
 
-  const handleEditClick = (img) => {
+  const handleEdit = (img) => {
     setEditingId(img.id);
     setEditTitle(img.title);
-    setEditCategory(img.category || 'SNS投稿用');
+    setEditType(img.type);
+    setEditCategory(img.category || '');
     setEditTags(img.tags.join(', '));
+    setEditThumbnail(null);
   };
 
   const handleEditCancel = () => {
@@ -102,17 +104,22 @@ export default function AssetManager() {
 
   const handleEditSave = async (id) => {
     try {
+      const formData = new FormData();
+      formData.append('title', editTitle);
+      formData.append('type', editType);
+      formData.append('category', editCategory);
+      formData.append('tags', editTags);
+      if (editThumbnail) {
+        formData.append('thumbnail', editThumbnail);
+      }
+
       const res = await fetch(`/api/assets/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: editTitle,
-          category: editCategory,
-          tags: editTags
-        })
+        body: formData
       });
       if (res.ok) {
         setEditingId(null);
+        setEditThumbnail(null);
         fetchAssets();
       }
     } catch (err) {
@@ -311,7 +318,21 @@ export default function AssetManager() {
                   {isEditing ? (
                     // 編集中UI
                     <>
-                      <td style={{ minWidth: '250px' }}>
+                      <td style={{ minWidth: '300px' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '4px' }}>
+                          <img 
+                            src={editThumbnail ? URL.createObjectURL(editThumbnail) : img.url} 
+                            style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} 
+                            alt="preview"
+                          />
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={(e) => setEditThumbnail(e.target.files[0])} 
+                            style={{ fontSize: '0.75rem', padding: '4px', alignSelf: 'center' }}
+                            title="プレビュー画像を変更"
+                          />
+                        </div>
                         <input 
                           type="text" 
                           value={editTitle} 
@@ -383,7 +404,7 @@ export default function AssetManager() {
                       <td>{img.downloads}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button onClick={() => handleEditClick(img)} style={{ color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem' }} title="編集">
+                          <button onClick={() => handleEdit(img)} style={{ color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem' }} title="編集">
                             <Edit2 size={16} />
                           </button>
                           <button onClick={() => handleDelete(img.id)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem' }} title="削除">
