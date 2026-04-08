@@ -5,10 +5,13 @@ export default function Dashboard() {
   const [images, setImages] = useState([]);
   const [leads, setLeads] = useState([]);
   
-  // メール設定等
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [isSavingMail, setIsSavingMail] = useState(false);
+
+  const [regSubject, setRegSubject] = useState('');
+  const [regBody, setRegBody] = useState('');
+  const [isSavingRegMail, setIsSavingRegMail] = useState(false);
 
 
 
@@ -35,6 +38,8 @@ export default function Dashboard() {
         if(data) {
           setSubject(data.mailSubject || '');
           setBody(data.mailBody || '');
+          setRegSubject(data.regMailSubject || '');
+          setRegBody(data.regMailBody || '');
           setTopBannerActive(data.topBannerActive || false);
           // 既存データの互換性維持または新規配列セット
           if (data.topBanners && Array.isArray(data.topBanners)) {
@@ -78,9 +83,18 @@ export default function Dashboard() {
     e.preventDefault();
     setIsSavingMail(true);
     const ok = await saveAllSettings({ mailSubject: subject, mailBody: body });
-    if (ok) alert("メール設定を保存しました。");
+    if (ok) alert("ダウンロード完了メール設定を保存しました。");
     else alert("保存に失敗しました。");
     setIsSavingMail(false);
+  };
+
+  const handleSaveRegMail = async (e) => {
+    e.preventDefault();
+    setIsSavingRegMail(true);
+    const ok = await saveAllSettings({ regMailSubject: regSubject, regMailBody: regBody });
+    if (ok) alert("会員登録完了メール設定を保存しました。");
+    else alert("保存に失敗しました。");
+    setIsSavingRegMail(false);
   };
 
   const handleSaveBanner = async (e) => {
@@ -292,6 +306,42 @@ export default function Dashboard() {
           <button type="submit" className="admin-btn" disabled={isSavingMail} style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Save size={18} />
             {isSavingMail ? '保存中...' : 'メール設定を保存する'}
+          </button>
+        </form>
+      </div>
+
+      <div className="admin-card" style={{ marginTop: '2rem' }}>
+        <h4 style={{ marginTop: 0, marginBottom: '1.5rem', color: 'var(--primary)' }}>自動配信メール設定 (新規会員登録完了時)</h4>
+        <form className="admin-form" onSubmit={handleSaveRegMail}>
+          <label style={{ fontWeight: 'bold' }}>メールの件名</label>
+          <input 
+            type="text" 
+            value={regSubject} 
+            onChange={(e) => setRegSubject(e.target.value)} 
+            placeholder="例: 【ラクザイ】新規会員登録が完了しました" 
+            required 
+            style={{ marginBottom: '1.5rem' }}
+            className="input-field"
+          />
+
+          <label style={{ fontWeight: 'bold' }}>
+            メールの本文
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '0.5rem', fontWeight: 'normal' }}>
+              ※ {'{company}'}、{'{personName}'} が自動で置き換わります
+            </span>
+          </label>
+          <textarea 
+            value={regBody} 
+            onChange={(e) => setRegBody(e.target.value)} 
+            rows={10} 
+            required 
+            placeholder="メール本文を入力"
+            className="input-field"
+          />
+
+          <button type="submit" className="admin-btn" disabled={isSavingRegMail} style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Save size={18} />
+            {isSavingRegMail ? '保存中...' : 'メール設定を保存する'}
           </button>
         </form>
       </div>

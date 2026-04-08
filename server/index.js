@@ -136,6 +136,73 @@ app.post('/api/auth/register', async (req, res) => {
     writeData(LEADS_FILE, leads);
 
     const token = jwt.sign({ id: newUser.id, email: newUser.email, role: newUser.role }, JWT_SECRET, { expiresIn: '7d' });
+
+    // ==========================================
+    // [新規会員登録時の自動配信メール実装]
+    // ==========================================
+    const nodemailer = require('nodemailer');
+    
+    (async () => {
+      try {
+        const settings = Object.keys(readData(SETTINGS_FILE)).length > 0 
+          ? readData(SETTINGS_FILE) 
+          : {};
+
+        const activeHost = settings.smtpHost || process.env.SMTP_HOST;
+        const activePort = settings.smtpPort || process.env.SMTP_PORT || 587;
+        const activeUser = settings.smtpUser || process.env.SMTP_USER;
+        const activePass = settings.smtpPass || process.env.SMTP_PASS;
+        const activeFrom = settings.smtpFrom || process.env.SMTP_FROM || '"ラクザイ公式" <noreply@rakuzai.com>';
+
+        const transporter = nodemailer.createTransport({
+          host: activeHost || 'smtp.ethereal.email',
+          port: activePort,
+          secure: activePort == 465,
+          auth: {
+            user: activeUser || 'dummy_user',
+            pass: activePass || 'dummy_pass'
+          }
+        });
+
+        const subjectStr = settings.regMailSubject || "【ラクザイ】新規会員登録が完了しました";
+        const bodyStr = settings.regMailBody || "この度はラクザイにご登録いただき誠にありがとうございます。\n\n引き続きラクザイのコンテンツをご活用ください。\n";
+
+        // 置換処理
+        const companyStr = newLead.company ? newLead.company + ' ' : '';
+        const nameStr = newLead.personName ? newLead.personName + ' 様' : '';
+        const finalBody = bodyStr.replace(/{company}/g, companyStr).replace(/{personName}/g, nameStr);
+
+        const mailOptions = {
+          from: activeFrom,
+          to: newLead.email,
+          subject: subjectStr,
+          text: finalBody
+        };
+
+        if (activeHost && activeUser && activePass) {
+          await transporter.sendMail(mailOptions);
+          console.log("会員登録完了メールを送信しました: ", newLead.email);
+
+          // 管理者(info@givee.co.jp)宛の通知メール
+          const adminMailOptions = {
+            from: activeFrom,
+            to: 'info@givee.co.jp',
+            subject: `【ラクザイ通知】新規会員登録: ${newLead.company} ${newLead.personName}様`,
+            text: `新しい会員登録がありました。\n\n` +
+                  `【会社名】${newLead.company}\n` +
+                  `【担当者名】${newLead.personName}\n` +
+                  `【メールアドレス】${newLead.email}\n` +
+                  `【電話番号】${newLead.phone}\n` +
+                  `【売上規模】${newLead.revenue}\n` +
+                  `【楽天店舗URL】${newLead.storeUrl}\n\n` +
+                  `確認事項などがあればサポートを実施してください。`
+          };
+          await transporter.sendMail(adminMailOptions);
+        }
+      } catch (err) {
+        console.error("Registration Mail Send Error:", err);
+      }
+    })();
     
     // パスワードを除外して返す
     const { password: _, ...userWithoutPassword } = newUser;
