@@ -737,9 +737,8 @@ if (fs.existsSync(DIST_PATH)) {
 
 // 永続化領域に保存したアップロード画像を提供する
 const UPLOADS_PATH = path.join(__dirname, 'data', 'uploads');
-if (fs.existsSync(UPLOADS_PATH)) {
-  app.use('/uploads', express.static(UPLOADS_PATH));
-}
+if (!fs.existsSync(UPLOADS_PATH)) fs.mkdirSync(UPLOADS_PATH, { recursive: true });
+app.use('/uploads', express.static(UPLOADS_PATH));
 
 // アップロード先(public/uploads等)も静的に見せる必要がある場合のフォールバック
 if (fs.existsSync(PUBLIC_PATH)) {
