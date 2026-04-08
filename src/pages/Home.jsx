@@ -72,19 +72,33 @@ export default function Home() {
     return matchCategory && matchSearch;
   });
 
-  // 動的にカテゴリとタグを抽出
-  const dynamicCategories = Array.from(new Set(mixedItems.map(item => item.category).filter(Boolean)));
-  const dynamicTags = Array.from(new Set(mixedItems.flatMap(item => item.tags || []).filter(Boolean)));
+  // --- カテゴリの集計と抽出 ---
+  const categoryCounts = {};
+  mixedItems.forEach(item => {
+    if (item.category) {
+      categoryCounts[item.category] = (categoryCounts[item.category] || 0) + 1;
+    }
+  });
 
-  // 固定の表示順
-  const fixedCategories = ['全て', 'SNS投稿用', '広告 / バナー素材', 'EC / 商品画像', 'LP / Webサイト', '資料 / プレゼン'];
+  const topCategories = Object.entries(categoryCounts)
+    .sort((a, b) => b[1] - a[1]) // 件数が多い順
+    .map(entry => entry[0])      // カテゴリ名のみ抽出
+    .slice(0, 10);               // 上位10件
+
+  // 固定の表示にするか、投稿数順にするか。全てを先頭に置いて残りを結合。
+  const mergedCategories = ['全て', ...topCategories].map(label => ({ type: 'category', label }));
+  
+  // 固定タグ
   const fixedTags = ['お買い物マラソン', '送料無料', 'ポイント倍', 'ランキング', '母の日'];
-
-  // 重複排除しながらマージ
-  const mergedCategories = [...new Set([...fixedCategories, ...dynamicCategories])].map(label => ({ type: 'category', label }));
-  const mergedTags = [...new Set([...fixedTags, ...dynamicTags])].map(label => ({ type: 'keyword', label }));
+  const mergedTags = fixedTags.map(label => ({ type: 'keyword', label }));
 
   const allTags = [...mergedCategories, ...mergedTags];
+
+  // --- ダウンロードランキング抽出 ---
+  const topDLItems = mixedItems
+    .filter(item => item.itemType === 'asset' && item.downloads > 0)
+    .sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
+    .slice(0, 5);
 
   return (
     <>
@@ -146,47 +160,81 @@ export default function Home() {
 
         </section>
 
-        {/* 流れるバナー表示領域 */}
-        {(bannerConfig && bannerConfig.topBannerActive && bannerConfig.topBanners && bannerConfig.topBanners.length > 0) && (
-          <div className="marquee-container" style={{ background: 'var(--bg-surface)', marginTop: '0', marginBottom: '1rem', padding: '0.75rem 0', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-            <div className="marquee-content" style={{ gap: '2rem' }}>
-              {/* スムーズな無限ループのために配列全体を10回リピート */}
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((repeatIndex) => (
-                <React.Fragment key={repeatIndex}>
-                  {bannerConfig.topBanners.map((banner) => (
-                    (banner.imgUrl || banner.text) ? (
-                      <a 
-                        key={`${repeatIndex}-${banner.id}`}
-                        href={banner.url || '#'} 
-                        target={banner.url ? "_blank" : "_self"}
-                        rel="noopener noreferrer"
-                        style={{ 
-                          color: '#bf0101', fontWeight: 'bold', fontSize: '0.95rem',
-                          textDecoration: 'none', transition: 'opacity 0.2s', whiteSpace: 'nowrap',
-                          display: 'flex', alignItems: 'center'
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
-                        onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
-                      >
-                        {banner.imgUrl ? (
-                          <img 
-                            src={banner.imgUrl} 
-                            alt={banner.text || '特集バナー'} 
-                            style={{ width: '150px', height: '78px', objectFit: 'cover', borderRadius: '4px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} 
-                          />
-                        ) : (
-                          <>
-                            {banner.text} <span style={{marginLeft:'0.5rem'}}>〉</span>
-                          </>
-                        )}
-                      </a>
-                    ) : null
-                  ))}
-                </React.Fragment>
-              ))}
-            </div>
+        {/* 流れるバナー & ランキング領域 */}
+        <div className="marquee-container" style={{ background: 'var(--bg-surface)', marginTop: '0', marginBottom: '1rem', padding: '1rem 0', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+          <div className="marquee-content" style={{ gap: '1.5rem', alignItems: 'center' }}>
+            {/* スムーズな無限ループのために10周リピート */}
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((repeatIndex) => (
+              <React.Fragment key={repeatIndex}>
+                
+                {/* 1. DLランキング アイテム表示 (カード形式) */}
+                {topDLItems.map((item, idx) => (
+                  <div 
+                    key={`rank-${repeatIndex}-${item.id}`}
+                    style={{ 
+                      display: 'flex', alignItems: 'center', gap: '0.8rem', background: '#fff', 
+                      padding: '0.5rem', paddingRight: '1rem', borderRadius: '8px', 
+                      border: `2px solid ${idx === 0 ? '#fde047' : idx === 1 ? '#cbd5e1' : idx === 2 ? '#fdba74' : 'var(--border)'}`, 
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.04)', cursor: 'pointer', flexShrink: 0,
+                      transition: 'transform 0.2s, box-shadow 0.2s'
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+                    onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.04)'; }}
+                    onClick={() => setSelectedImage(item)}
+                  >
+                    <img src={item.url} style={{ width: '60px', height: '60px', borderRadius: '6px', objectFit: 'cover', background: '#f1f5f9' }} alt={item.title} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', maxWidth: '150px' }}>
+                      <div style={{ 
+                        fontSize: '0.65rem', fontWeight: '900', display: 'inline-block', width: 'fit-content', padding: '0.1rem 0.4rem', borderRadius: '4px', marginBottom: '0.1rem',
+                        background: idx === 0 ? 'linear-gradient(135deg, #fef08a, #eab308)' : idx === 1 ? 'linear-gradient(135deg, #e2e8f0, #94a3b8)' : idx === 2 ? 'linear-gradient(135deg, #fed7aa, #b45309)' : '#f8fafc',
+                        color: idx > 2 ? '#64748b' : '#fff',
+                        border: idx > 2 ? '1px solid #e2e8f0' : 'none'
+                      }}>
+                        {idx === 0 ? '👑 DLランキング 第1位' : `DLランキング 第${idx + 1}位`}
+                      </div>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-main)', marginTop: '0.1rem' }}>{item.title}</span>
+                      <span style={{ fontSize: '0.75rem', color: '#fff', background: '#ef4444', padding: '0.1rem 0.4rem', borderRadius: '12px', fontWeight: 'bold', display: 'inline-block', width: 'fit-content', marginTop: '0.1rem' }}>
+                        {item.downloads} DL
+                      </span>
+                    </div>
+                  </div>
+                ))}
+
+                {/* 2. 特集バナー等の表示 */}
+                {(bannerConfig && bannerConfig.topBannerActive && bannerConfig.topBanners) && bannerConfig.topBanners.map((banner) => (
+                  (banner.imgUrl || banner.text) ? (
+                    <a 
+                      key={`banner-${repeatIndex}-${banner.id}`}
+                      href={banner.url || '#'} 
+                      target={banner.url ? "_blank" : "_self"}
+                      rel="noopener noreferrer"
+                      style={{ 
+                        color: '#bf0101', fontWeight: 'bold', fontSize: '0.95rem',
+                        textDecoration: 'none', transition: 'opacity 0.2s', whiteSpace: 'nowrap',
+                        display: 'flex', alignItems: 'center', flexShrink: 0
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
+                      onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+                    >
+                      {banner.imgUrl ? (
+                        <img 
+                          src={banner.imgUrl} 
+                          alt={banner.text || '特集バナー'} 
+                          style={{ minWidth: '150px', height: '60px', objectFit: 'cover', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} 
+                        />
+                      ) : (
+                        <div style={{ background: '#fff', padding: '0.5rem 1rem', borderRadius: '50px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', height: '48px', marginTop: '6px' }}>
+                          {banner.text} <span style={{marginLeft:'0.5rem'}}>〉</span>
+                        </div>
+                      )}
+                    </a>
+                  ) : null
+                ))}
+                
+              </React.Fragment>
+            ))}
           </div>
-        )}
+        </div>
 
         <section className="gallery-container">
           {filteredItems.length > 0 ? (
