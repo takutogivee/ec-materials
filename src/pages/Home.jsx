@@ -12,7 +12,10 @@ export default function Home() {
   const [images, setImages] = useState([]);
   const [blogs, setBlogs] = useState([]);
   const [activeCategory, setActiveCategory] = useState('');
-  const [likedItems, setLikedItems] = useState([]);
+  const [likedItems, setLikedItems] = useState(() => {
+    const saved = localStorage.getItem('rakuzai_liked_items');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [bannerConfig, setBannerConfig] = useState(null);
 
   useEffect(() => {
@@ -26,6 +29,10 @@ export default function Home() {
       if (settingsData) setBannerConfig(settingsData);
     }).catch(err => console.error(err));
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('rakuzai_liked_items', JSON.stringify(likedItems));
+  }, [likedItems]);
 
   const handleLikeToggle = (id) => {
     setLikedItems(prev => 

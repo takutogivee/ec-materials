@@ -4,15 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import Header from '../components/Header.jsx';
 import Gallery from '../components/Gallery.jsx';
-import { User, Download, Settings, History } from 'lucide-react';
+import { User, Download, Settings, History, Heart } from 'lucide-react';
 import '../index.css';
 
 export default function MyPage() {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
   const [downloads, setDownloads] = useState([]);
+  const [likedItemsData, setLikedItemsData] = useState([]);
   const [isLoadingDownloads, setIsLoadingDownloads] = useState(true);
-  const [activeTab, setActiveTab] = useState('downloads'); // 'downloads' | 'settings'
+  const [activeTab, setActiveTab] = useState('downloads'); // 'downloads' | 'likes' | 'settings'
 
   useEffect(() => {
     // If auth finishes checking and no user is found, redirect to login
@@ -24,6 +25,7 @@ export default function MyPage() {
   useEffect(() => {
     if (user) {
       const token = localStorage.getItem('rakuzai_token');
+      // ダウンロード履歴取得
       fetch('/api/user/downloads', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -38,8 +40,43 @@ export default function MyPage() {
         console.error(err);
         setIsLoadingDownloads(false);
       });
+
+      // いいねアイテム取得
+      const savedLikes = JSON.parse(localStorage.getItem('rakuzai_liked_items') || '[]');
+      if (savedLikes.length > 0) {
+        Promise.all([
+          fetch('/api/assets').then(res => res.json()),
+          fetch('/api/blogs').then(res => res.json())
+        ]).then(([assetsData, blogsData]) => {
+          const mixedItems = [
+            ...assetsData.map(img => ({ ...img, itemType: 'asset', sortDate: new Date(img.createdAt || 0).getTime() })),
+            ...blogsData.filter(b => b.isPublic).map(blog => ({
+              ...blog,
+              itemType: 'blog',
+              url: blog.thumbnailUrl || '', 
+              tags: blog.tags || [],
+              sortDate: new Date(blog.createdAt).getTime()
+            }))
+          ];
+          const filteredLikes = mixedItems.filter(item => savedLikes.includes(item.id));
+          setLikedItemsData(filteredLikes);
+        });
+      }
     }
   }, [user]);
+
+  const handleLikeToggle = (id) => {
+    const currentLikes = JSON.parse(localStorage.getItem('rakuzai_liked_items') || '[]');
+    let newLikes;
+    if (currentLikes.includes(id)) {
+      newLikes = currentLikes.filter(itemId => itemId !== id);
+      setLikedItemsData(prev => prev.filter(item => item.id !== id));
+    } else {
+      newLikes = [...currentLikes, id];
+    }
+    localStorage.setItem('rakuzai_liked_items', JSON.stringify(newLikes));
+    // home側にも通知するため、一時的にイベント発火させることもできるが今回はMyPage再描画のみで十分
+  };
 
   if (loading || !user) {
     return <div style={{ padding: '4rem', textAlign: 'center' }}>Loading...</div>;
@@ -104,6 +141,23 @@ export default function MyPage() {
               <History size={18} /> ダウンロード履歴
             </button>
             <button 
+              onClick={() => setActiveTab('likes')}
+              style={{
+                padding: '1rem 2rem',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === 'likes' ? '3px solid var(--primary)' : '3px solid transparent',
+                color: activeTab === 'likes' ? 'var(--primary)' : 'var(--text-muted)',
+                fontWeight: activeTab === 'likes' ? 'bold' : 'normal',
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                fontSize: '1.05rem',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Heart size={18} /> お気に入り
+            </button>
+            <button 
               onClick={() => setActiveTab('settings')}
               style={{
                 padding: '1rem 2rem',
@@ -148,6 +202,42 @@ export default function MyPage() {
                   <p style={{ fontSize: '0.9rem' }}>トップページから気に入った素材をダウンロードしてみましょう！</p>
                   <button onClick={() => navigate('/')} className="submit-btn" style={{ marginTop: '1.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
                     トップページへ
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'likes' && (
+            <div>
+              <h2 style={{ fontSize: '1.4rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                お気に入り (いいね) したコンテンツ
+              </h2>
+              {likedItemsData.length > 0 ? (
+                <div className="gallery-container" style={{ margin: 0, padding: 0 }}>
+                  <Gallery 
+                    items={likedItemsData} 
+                    onImageClick={(item) => {
+                      if (item.itemType === 'blog') {
+                        navigate(`/blog/${item.id}`);
+                      } else {
+                        navigate('/'); // アセットはトップのモーダルで見るのが基本なので。またはIDで開く等対応可能であれば。
+                      }
+                    }} 
+                    likedItems={likedItemsData.map(i => i.id)}
+                    onLikeToggle={handleLikeToggle}
+                  />
+                </div>
+              ) : (
+                <div style={{ 
+                  background: 'white', padding: '4rem 2rem', borderRadius: '12px', 
+                  textAlign: 'center', border: '1px dashed var(--border)', color: 'var(--text-muted)' 
+                }}>
+                  <Heart size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                  <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>お気に入りしたコンテンツはありません</p>
+                  <p style={{ fontSize: '0.9rem' }}>トップページや記事ページでハートマークを押して保存しましょう！</p>
+                  <button onClick={() => navigate('/')} className="submit-btn" style={{ marginTop: '1.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                    コンテンツを探す
                   </button>
                 </div>
               )}
