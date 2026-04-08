@@ -187,7 +187,12 @@ export default function Home() {
                     onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.04)'; }}
                     onClick={() => setSelectedImage(item)}
                   >
-                    <img src={item.url} style={{ width: '60px', height: '60px', borderRadius: '6px', objectFit: 'cover', background: '#f1f5f9' }} alt={item.title} />
+                    <img 
+                      src={item.url || '/logo.png'} 
+                      style={{ width: '60px', height: '60px', borderRadius: '6px', objectFit: 'cover', background: '#f1f5f9' }} 
+                      alt={item.title} 
+                      onError={(e) => { e.target.onerror = null; e.target.src = '/logo.png'; }}
+                    />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', maxWidth: '150px' }}>
                       <div style={{ 
                         fontSize: '0.65rem', fontWeight: '900', display: 'inline-block', width: 'fit-content', padding: '0.1rem 0.4rem', borderRadius: '4px', marginBottom: '0.1rem',
@@ -220,7 +225,12 @@ export default function Home() {
                     onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.04)'; }}
                     onClick={() => { window.location.href = `/blogs/${item.id}`; }}
                   >
-                    <img src={item.url} style={{ width: '60px', height: '60px', borderRadius: '6px', objectFit: 'cover', background: '#f1f5f9' }} alt={item.title} />
+                    <img 
+                      src={item.url || '/logo.png'} 
+                      style={{ width: '60px', height: '60px', borderRadius: '6px', objectFit: 'cover', background: '#f1f5f9' }} 
+                      alt={item.title} 
+                      onError={(e) => { e.target.onerror = null; e.target.src = '/logo.png'; }}
+                    />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', maxWidth: '150px' }}>
                       <div style={{ 
                         fontSize: '0.65rem', fontWeight: '900', display: 'inline-block', width: 'fit-content', padding: '0.1rem 0.4rem', borderRadius: '4px', marginBottom: '0.1rem',
