@@ -143,6 +143,12 @@ export default function Dashboard() {
     setTopBanners(prev => prev.filter(b => b.id !== id));
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 30;
+  const sortedLeads = [...leads].reverse();
+  const totalPages = Math.ceil(sortedLeads.length / itemsPerPage) || 1;
+  const currentLeads = sortedLeads.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
     <div>
       <h3 style={{ marginBottom: '1.5rem', marginTop: 0 }}>概要</h3>
@@ -172,7 +178,7 @@ export default function Dashboard() {
             </tr>
           </thead>
           <tbody>
-            {leads.slice().reverse().map(lead => (
+            {currentLeads.map(lead => (
               <tr key={lead.id}>
                 <td>{lead.email}</td>
                 <td>{lead.date}</td>
@@ -181,6 +187,28 @@ export default function Dashboard() {
             ))}
           </tbody>
         </table>
+        
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={{ padding: '0.4rem 0.8rem', border: '1px solid #cbd5e1', background: currentPage === 1 ? '#f1f5f9' : '#fff', color: currentPage === 1 ? '#94a3b8' : '#334155', borderRadius: '4px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+            >
+              前へ
+            </button>
+            <span style={{ fontSize: '0.9rem', color: '#64748b' }}>
+              {currentPage} / {totalPages} ページ
+            </span>
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={{ padding: '0.4rem 0.8rem', border: '1px solid #cbd5e1', background: currentPage === totalPages ? '#f1f5f9' : '#fff', color: currentPage === totalPages ? '#94a3b8' : '#334155', borderRadius: '4px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+            >
+              次へ
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="admin-card">

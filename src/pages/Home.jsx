@@ -270,10 +270,10 @@ export default function Home() {
                         <img 
                           src={banner.imgUrl} 
                           alt={banner.text || '特集バナー'} 
-                          style={{ minWidth: '150px', height: '60px', objectFit: 'cover', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} 
+                          style={{ minWidth: '150px', height: '78px', objectFit: 'cover', borderRadius: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.04)', border: '1px solid var(--border)' }} 
                         />
                       ) : (
-                        <div style={{ background: '#fff', padding: '0.5rem 1rem', borderRadius: '50px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', height: '48px', marginTop: '6px' }}>
+                        <div style={{ background: '#fff', padding: '0 1.5rem', borderRadius: '8px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', height: '78px', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
                           {banner.text} <span style={{marginLeft:'0.5rem'}}>〉</span>
                         </div>
                       )}
