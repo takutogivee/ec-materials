@@ -327,7 +327,7 @@ export default function Dashboard() {
           <label style={{ fontWeight: 'bold' }}>
             メールの本文
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '0.5rem', fontWeight: 'normal' }}>
-              ※ {'{company}'}、{'{personName}'} が自動で置き換わります
+              ※ {'{company}'}、{'{personName}'}、{'{email}'}、{'{password}'} が自動で置き換わります
             </span>
           </label>
           <textarea 

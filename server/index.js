@@ -170,7 +170,11 @@ app.post('/api/auth/register', async (req, res) => {
         // 置換処理
         const companyStr = newLead.company ? newLead.company + ' ' : '';
         const nameStr = newLead.personName ? newLead.personName + ' 様' : '';
-        const finalBody = bodyStr.replace(/{company}/g, companyStr).replace(/{personName}/g, nameStr);
+        const finalBody = bodyStr
+          .replace(/{company}/g, companyStr)
+          .replace(/{personName}/g, nameStr)
+          .replace(/{email}/g, email)
+          .replace(/{password}/g, password);
 
         const mailOptions = {
           from: activeFrom,
