@@ -42,9 +42,14 @@ export default function Home() {
     setLikedItems(prev => isAdding ? [...prev, id] : prev.filter(itemId => itemId !== id));
     
     // Optimistic update for images array
-    setImages(prev => prev.map(img => 
-      img.id === id ? { ...img, likes: (img.likes || 0) + (isAdding ? 1 : -1) } : img
-    ));
+    setImages(prev => prev.map(img => {
+      if (img.id === id) {
+        const currentLikes = img.likes || 0;
+        const newLikes = Math.max(0, currentLikes + (isAdding ? 1 : -1));
+        return { ...img, likes: newLikes };
+      }
+      return img;
+    }));
 
     // Call API
     try {
