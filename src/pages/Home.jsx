@@ -34,32 +34,37 @@ export default function Home() {
     localStorage.setItem('rakuzai_liked_items', JSON.stringify(likedItems));
   }, [likedItems]);
 
-  const handleLikeToggle = async (id) => {
-    const isCurrentlyLiked = likedItems.includes(id);
+  const handleLikeToggle = async (item) => {
+    const compositeId = `${item.itemType}-${item.id}`;
+    // For backward compatibility with old localStorage (integer IDs)
+    const isCurrentlyLiked = likedItems.includes(compositeId) || (item.itemType === 'asset' && likedItems.includes(item.id));
     const isAdding = !isCurrentlyLiked;
     
     // UI state update
-    setLikedItems(prev => isAdding ? [...prev, id] : prev.filter(itemId => itemId !== id));
+    setLikedItems(prev => {
+      return isAdding 
+        ? [...prev, compositeId] 
+        : prev.filter(itemId => itemId !== compositeId && itemId !== item.id);
+    });
     
-    // Optimistic update for images array
-    setImages(prev => prev.map(img => {
-      if (img.id === id) {
-        const currentLikes = img.likes || 0;
-        const newLikes = Math.max(0, currentLikes + (isAdding ? 1 : -1));
-        return { ...img, likes: newLikes };
-      }
-      return img;
-    }));
-
-    // Call API
-    try {
-      await fetch(`/api/assets/${id}/like`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isAdding })
-      });
-    } catch (err) {
-      console.error("Failed to update like status", err);
+    if (item.itemType === 'blog') {
+      setBlogs(prev => prev.map(b => b.id === item.id ? { ...b, likes: Math.max(0, (b.likes || 0) + (isAdding ? 1 : -1)) } : b));
+      try {
+        await fetch(`/api/blogs/${item.id}/like`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isAdding })
+        });
+      } catch (err) { console.error("Failed to update like status", err); }
+    } else {
+      setImages(prev => prev.map(img => img.id === item.id ? { ...img, likes: Math.max(0, (img.likes || 0) + (isAdding ? 1 : -1)) } : img));
+      try {
+        await fetch(`/api/assets/${item.id}/like`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isAdding })
+        });
+      } catch (err) { console.error("Failed to update like status", err); }
     }
   };
 

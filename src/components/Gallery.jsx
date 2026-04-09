@@ -1,11 +1,13 @@
 import React from 'react';
-import { Sparkles, Camera, Heart, Download, BookOpen } from 'lucide-react';
+import { Sparkles, Camera, Heart, Download, BookOpen, Eye } from 'lucide-react';
 
 export default function Gallery({ items, onImageClick, likedItems = [], onLikeToggle }) {
   return (
     <div className="gallery">
       {items.map((item) => {
-        const isLiked = likedItems.includes(item.id);
+        const compositeId = `${item.itemType}-${item.id}`;
+        // Backward compatibility for old integer IDs:
+        const isLiked = likedItems.includes(compositeId) || (item.itemType === 'asset' && likedItems.includes(item.id));
         
         const getFormatText = (it) => {
           if (it.itemType === 'blog') return '記事';
@@ -59,13 +61,17 @@ export default function Gallery({ items, onImageClick, likedItems = [], onLikeTo
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Download size={14} /> {item.downloads || 0}
+                  {item.itemType === 'blog' ? (
+                    <><Eye size={14} /> {item.views || 0}</>
+                  ) : (
+                    <><Download size={14} /> {item.downloads || 0}</>
+                  )}
                 </span>
                 <span 
                   style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
                   onClick={(e) => { 
                     e.stopPropagation(); 
-                    if (onLikeToggle) onLikeToggle(item.id);
+                    if (onLikeToggle) onLikeToggle(item);
                   }}
                 >
                   <Heart size={14} color={isLiked ? "#bf0000" : "var(--text-muted)"} fill={isLiked ? "#bf0000" : "none"} />

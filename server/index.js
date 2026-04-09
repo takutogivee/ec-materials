@@ -301,6 +301,28 @@ app.get('/api/blogs/:id', (req, res) => {
   }
 });
 
+// ブログのいいねカウント更新
+app.post('/api/blogs/:id/like', (req, res) => {
+  try {
+    const blogs = readData(BLOGS_FILE);
+    const blogId = parseInt(req.params.id);
+    const blogIndex = blogs.findIndex(b => b.id === blogId);
+
+    if (blogIndex !== -1) {
+      const isAdding = req.body.isAdding;
+      blogs[blogIndex].likes = (blogs[blogIndex].likes || 0) + (isAdding ? 1 : -1);
+      if (blogs[blogIndex].likes < 0) blogs[blogIndex].likes = 0;
+      
+      writeData(BLOGS_FILE, blogs);
+      res.json(blogs[blogIndex]);
+    } else {
+      res.status(404).json({ error: 'Blog not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update like count for blog' });
+  }
+});
+
 app.post('/api/blogs', cpUpload, (req, res) => {
   try {
     const blogs = readData(BLOGS_FILE);
