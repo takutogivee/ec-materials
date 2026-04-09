@@ -109,6 +109,7 @@ export default function Home() {
   });
 
   const topCategories = Object.entries(categoryCounts)
+    .filter(entry => entry[0] !== '全て')
     .sort((a, b) => b[1] - a[1]) // 件数が多い順
     .map(entry => entry[0])      // カテゴリ名のみ抽出
     .slice(0, 10);               // 上位10件
