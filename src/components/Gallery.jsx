@@ -42,7 +42,7 @@ export default function Gallery({ items, onImageClick, likedItems = [], onLikeTo
             {formatText}
           </div>
           {item.itemType === 'blog' && !item.url ? (
-            <div style={{ width: '100%', aspectRatio: '1 / 1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)', color: '#64748b' }}>
+            <div style={{ width: '100%', aspectRatio: '16 / 9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)', color: '#64748b' }}>
               <BookOpen size={40} style={{ opacity: 0.6, marginBottom: '0.5rem' }} />
               <span style={{ fontSize: '0.8rem', fontWeight: 'bold', letterSpacing: '0.05em', opacity: 0.8 }}>ARTICLE</span>
             </div>
@@ -54,31 +54,36 @@ export default function Gallery({ items, onImageClick, likedItems = [], onLikeTo
               onError={(e) => { e.target.onerror = null; e.target.src = '/logo.png'; }}
             />
           )}
-          <div className="gallery-overlay">
-            <div className="gallery-top-actions">
-              <button 
-                className="action-btn" 
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  if (onLikeToggle) onLikeToggle(item.id);
-                }}
-              >
-                <Heart size={18} color={isLiked ? "#bf0000" : "var(--text-main)"} fill={isLiked ? "#bf0000" : "none"} />
-              </button>
-            </div>
-            <div className="gallery-bottom-info">
-              <div className="item-title">{item.title}</div>
-              <div className="badge-container" style={{ flexWrap: 'wrap' }}>
-                {item.itemType === 'blog' && (
-                  <span className="badge" style={{background: '#3b82f6'}}>ノウハウ記事</span>
-                )}
-                {item.category && (
-                  <span className="badge" style={{background: 'rgba(191,0,0,0.8)'}}>{item.category}</span>
-                )}
-                {item.tags && item.tags.slice(0, 3).map((tag, idx) => (
-                  <span key={idx} className="badge" style={{background: 'rgba(0,0,0,0.6)'}}>{tag}</span>
-                ))}
+          <div className="gallery-item-info" style={{ padding: '0.8rem' }}>
+            <div className="item-title" style={{ color: 'var(--text-main)', fontSize: '1rem', marginBottom: '0.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.title}</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Download size={14} /> {item.downloads || 0}
+                </span>
+                <span 
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    if (onLikeToggle) onLikeToggle(item.id);
+                  }}
+                >
+                  <Heart size={14} color={isLiked ? "#bf0000" : "var(--text-muted)"} fill={isLiked ? "#bf0000" : "none"} />
+                  {item.likes || 0}
+                </span>
               </div>
+              <span>{item.createdAt ? new Date(item.createdAt).toLocaleDateString('ja-JP') : ''}</span>
+            </div>
+            <div className="badge-container" style={{ flexWrap: 'wrap', marginTop: '0.5rem' }}>
+              {item.itemType === 'blog' && (
+                <span className="badge" style={{background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid #3b82f6'}}>ノウハウ記事</span>
+              )}
+              {item.category && (
+                <span className="badge" style={{background: 'rgba(191,0,0,0.1)', color: 'var(--primary)', border: '1px solid var(--primary)'}}>{item.category}</span>
+              )}
+              {item.tags && item.tags.slice(0, 3).map((tag, idx) => (
+                <span key={idx} className="badge" style={{background: 'rgba(0,0,0,0.05)', color: '#555', border: '1px solid #ddd'}}>{tag}</span>
+              ))}
             </div>
           </div>
           </div>

@@ -34,10 +34,28 @@ export default function Home() {
     localStorage.setItem('rakuzai_liked_items', JSON.stringify(likedItems));
   }, [likedItems]);
 
-  const handleLikeToggle = (id) => {
-    setLikedItems(prev => 
-      prev.includes(id) ? prev.filter(itemId => itemId !== id) : [...prev, id]
-    );
+  const handleLikeToggle = async (id) => {
+    const isCurrentlyLiked = likedItems.includes(id);
+    const isAdding = !isCurrentlyLiked;
+    
+    // UI state update
+    setLikedItems(prev => isAdding ? [...prev, id] : prev.filter(itemId => itemId !== id));
+    
+    // Optimistic update for images array
+    setImages(prev => prev.map(img => 
+      img.id === id ? { ...img, likes: (img.likes || 0) + (isAdding ? 1 : -1) } : img
+    ));
+
+    // Call API
+    try {
+      await fetch(`/api/assets/${id}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isAdding })
+      });
+    } catch (err) {
+      console.error("Failed to update like status", err);
+    }
   };
 
   // 画像とブログを統合して扱うための配列を作成
@@ -166,7 +184,7 @@ export default function Home() {
         </section>
 
         {/* 流れるバナー & ランキング領域 */}
-        <div className="marquee-container" style={{ background: 'var(--bg-surface)', marginTop: '0', marginBottom: '1rem', padding: '1rem 0', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+        <div className="marquee-container" style={{ background: 'var(--primary)', marginTop: '0', marginBottom: '1rem', padding: '1rem 0', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
           <div className="marquee-content" style={{ gap: '1.5rem', alignItems: 'center' }}>
             {/* スムーズな無限ループのために10周リピート */}
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((repeatIndex) => (
@@ -310,9 +328,9 @@ export default function Home() {
       
       {/* 検索エンジン向けSEOテキストエリア (UIを邪魔しないように薄い文字で) */}
       <section style={{ maxWidth: '800px', margin: '4rem auto 0 auto', padding: '0 2rem', color: 'var(--text-muted)', fontSize: '0.8rem', lineHeight: '1.8' }}>
-        <h2 style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>ECデザイン・画像のフリー素材「ラクザイ」について</h2>
+        <h2 style={{ fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>「楽天 フリー 素材」や「楽天 トップ ページ デザイン」をもっと簡単に</h2>
         <p>
-          ラクザイは、楽天市場、Yahoo!ショッピング、Amazonなどで売上を伸ばすためのEC特化型フリー素材（画像・バナー・アイコン）ダウンロードサイトです。
+          ラクザイは、楽天市場をはじめとしたECサイト構築に欠かせない、「楽天 rms 商品 ページ デザイン」や「楽天 商品 ページ デザイン」を彩る高品質なEC特化型フリー素材を提供しています。
           送料無料タグ、ポイントアップバナー、ランキング受賞の王冠アイコン、母の日やサマーセール特集の背景など、商品の転換率（CVR）やクリック率を向上させるデザインをご用意しています。
           すべての素材が無料で商用利用可能。面倒なクレジット表記も不要なため、日々の店舗運営やSNS（Instagram、LINE）運用ですぐにご活用いただけます。
         </p>

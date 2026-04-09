@@ -439,7 +439,9 @@ app.post('/api/assets', cpUpload, (req, res) => {
       type: type || 'creator',
       resolution: 'Original',
       downloads: 0,
-      creator: creator || 'Admin User'
+      likes: 0,
+      creator: creator || 'Admin User',
+      createdAt: new Date().toISOString()
     };
 
     assets.unshift(newAsset); // 最新を先頭に追加
@@ -530,6 +532,29 @@ app.post('/api/assets/:id/download', (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ error: 'Failed to update download count' });
+  }
+});
+
+// いいねカウント更新
+app.post('/api/assets/:id/like', (req, res) => {
+  try {
+    const assets = readData(ASSETS_FILE);
+    const assetId = parseInt(req.params.id);
+    const assetIndex = assets.findIndex(a => a.id === assetId);
+
+    if (assetIndex !== -1) {
+      const isAdding = req.body.isAdding;
+      assets[assetIndex].likes = (assets[assetIndex].likes || 0) + (isAdding ? 1 : -1);
+      // likes がマイナスにならないようにする
+      if (assets[assetIndex].likes < 0) assets[assetIndex].likes = 0;
+      
+      writeData(ASSETS_FILE, assets);
+      res.json(assets[assetIndex]);
+    } else {
+      res.status(404).json({ error: 'Asset not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update like count' });
   }
 });
 
